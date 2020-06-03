@@ -3,6 +3,18 @@
 import tkinter
 import copy # Used for creating copies of variables instead of instances
 
+# Example grid
+# [[1,0,6,0,0,2,0,0,0], 
+# [0,5,0,0,0,6,0,9,1],
+# [0,0,9,5,0,1,4,6,2],
+# [0,3,7,9,0,5,0,0,0],
+# [5,8,1,0,2,7,9,0,0],
+# [0,0,0,4,0,8,1,5,7],
+# [0,0,0,2,6,0,5,4,0],
+# [0,0,4,1,5,0,6,0,9],
+# [9,0,0,8,7,4,2,1,0]]
+
+
 class SudokuGrid():
     'Creates the sudoku grid'
 
@@ -71,6 +83,15 @@ class SudokuGrid():
             y1 = self.margin + (i*self.side)
             self.canvas.create_line(x0,y0,x1,y1, fill=color)
 
+            self.__display_numbers() # Sets each number from self.grid into the grid ################################################################################################################################################################
+
+    def __display_numbers(self, x=None, y=None, n=None): ################################################################################################################################################################
+        '''Represents each number on the grid
+
+        Takes in x position, y position, and value of the number'''
+
+        if not x: # If x is False than no arguments have been passed in 
+
     def __cell_clicked(self, event):
         '''Handles mouse events
 
@@ -131,7 +152,9 @@ class SudokuGrid():
                     for num in range(1,10): # Tries all numbers from 1 to 9
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
+                            ################################################################################################################################################################
                             self.__solve_grid() # Keeps solving
+                            ################################################################################################################################################################
                             self.grid[ypos][xpos] = 0 # If program reaches here, no further numbers can be put into the grid and the square is reset
                     
                     return False # No possible solution has been found for an empty position; exits functions
@@ -144,7 +167,7 @@ class SudokuGrid():
     def __possible(self, x, y, n):
         '''Returns True or False if a number can fit in a specific position in the grid 
 
-        Takes in the grid, x position, y position, and value of a possible number'''
+        Takes in x position, y position, and value of a possible number'''
 
         # Checks row
         for position in self.grid[y]:
