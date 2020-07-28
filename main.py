@@ -6,45 +6,34 @@ import copy # Used for creating copies of variables instead of instances
 # To retrieve the text from an item with object ID I on a canvas C, call C.itemcget(I, 'text').
 # To replace the text in an item with object ID I on a canvas C with the text from a string S, call C.itemconfigure(I, text=S). 
 
-# Example grid
-# [[1,0,6,0,0,2,0,0,0], 
-# [0,5,0,0,0,6,0,9,1],
-# [0,0,9,5,0,1,4,6,2],
-# [0,3,7,9,0,5,0,0,0],
-# [5,8,1,0,2,7,9,0,0],
-# [0,0,0,4,0,8,1,5,7],
-# [0,0,0,2,6,0,5,4,0],
-# [0,0,4,1,5,0,6,0,9],
-# [9,0,0,8,7,4,2,1,0]]
-
-
-class SudokuGrid():
-    'Creates the sudoku grid'
+class GraphicalInterface:
+    'Creates the entire GUI'
 
     def __init__(self, parent): # Parent is the main window
-        self.parent = parent
+        self.parent = parent # Parent root frame
 
-        self.solutions = [] # Stores all the solved grids
+        self.solutions = [] # Stores all solved grids
 
         self.margin = 20 # Margin size of the sudoku board
         self.side = 50 # Side length of each square in the grid
         self.width = self.height = (self.margin*2) + (self.side*9) # Defines the width and height of the canvas
-        self.fonttype = ('Helvetica', 20, 'bold') # Font size in canvas grid
+
+        self.fonttype = ('Helvetica', 20, 'bold') # Stores the font type of the canvas text
         
-        self.row = -1  # Currently selected cell row and colunm
-        self.col = -1
+        self.row = None  # Currently selected cell row and colunm
+        self.col = None
 
-        self.__initUI() # Initiates other widgets
+        self.__widgets() # Initiates other widgets
 
-    def __initUI(self):
-        'Initiates the elements in the grid'
+    def __widgets(self):
+        'Initiates the widgets in the grid'
 
         self.frame = tkinter.Frame(self.parent) # Creates a frame inside the parent 
-        self.button = tkinter.Button(self.parent, text='Testing', command=self.__start) ################################################################################################################################################################
+        self.button = tkinter.Button(self.parent, text='Testing', command=self.__start) 
         self.canvas = tkinter.Canvas(self.frame, bg='lightblue', width=self.width, height=self.height) # Sudoku grid
 
         self.frame.pack()
-        self.button.pack() ################################################################################################################################################################
+        self.button.pack() 
         self.canvas.pack()
 
         self.__draw_grid() # Draws the grid
@@ -53,7 +42,7 @@ class SudokuGrid():
         self.parent.bind('<Key>', self.__key_pressed) # Binds key pressed to entering a key; must be binded to root
 
     def __draw_grid(self):
-        'Draws the suduku grid'
+        'Draws the Suduku Grid'
 
         for i in range(10):
             if i % 3 == 0: # Every 3 lines switches to black
@@ -75,43 +64,36 @@ class SudokuGrid():
             y1 = self.margin + (i*self.side)
             self.canvas.create_line(x0,y0,x1,y1, fill=color)
 
-    def __display_numbers(self, x, y, n): ################################################################################################################################################################
-        '''Displays a given number on the grid
-
-        Takes in x position, y position, and value of the number'''
-
-        pass
-
     def __cell_clicked(self, event):
-        '''Handles mouse events
+        '''Handles mouse clicks
 
         Takes event as argument'''
 
         x, y = event.x, event.y # Finds the x and y coordinate of the click
-        print(f'Clicked at {x},{y}') ################################################################################################################################################################
+        print(f'Clicked at {x},{y}') 
 
         if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
             row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
-            print(f'Clicked at row {row}, column {col}') ################################################################################################################################################################
+            print(f'Clicked at row {row}, column {col}') 
 
-            if (row, col) == (self.row, self.col): # If cells is already selected, deselect it
-                self.row, self.col = -1, -1
+            if (row, col) == (self.row, self.col): # If cell is already selected, deselect it
+                self.row, self.col = None, None
 
             else: # If it is not selected, select it
                 self.row, self.col = row, col
 
-            self.__draw_cursor() # Handles the box selection
+            self.__draw_border() # Handles the box selection
 
-        else: # If the user clicks outself.side the canvas
-            self.row, self.col = -1, -1 # Resets the currently selected cell row and colunm
+        else: # If the user clicks outside the canvas
+            self.row, self.col = None, None # Resets the currently selected cell row and colunm
             self.canvas.delete('cursor') # Deletes the previous cursor
 
-    def __draw_cursor(self):
+    def __draw_border(self):
         'Draws the border around the clicked square'
 
         self.canvas.delete('cursor') # Deletes the previous cursor
 
-        if (self.row, self.col) != (-1, -1): # Checks that a box has not been deselected (-1, -1 only occur if deselected)
+        if (self.row, self.col) != (None, None): # Checks that a box has not been deselected 
             x0 = self.margin + self.col*self.side # Defines the boundaries of the rectangle selection cursor
             y0 = self.margin + self.row*self.side
             x1 = self.margin + (self.col+1)*self.side 
@@ -119,11 +101,11 @@ class SudokuGrid():
             self.canvas.create_rectangle(x0, y0, x1, y1, tags='cursor', outline='green', width=3) # Creates the cursor
 
     def __key_pressed(self, event):
-        '''Handles keyboard events
+        '''Handles keyboard key presses
         
         Takes event as argument'''
 
-        if event.char.isnumeric(): # Only puts number in if it is numberic
+        if (self.row, self.col) != (None, None) and event.char.isnumeric(): # Checks that a square is selected and the entered key is a digit
             x = round(self.margin + self.side*self.col + self.side/2) # Finds x and y coords of the centre of the selected square
             y = round(self.margin + self.side*self.row + self.side/2) # Coordinates are rounded to nearest integer
             
@@ -133,6 +115,52 @@ class SudokuGrid():
             self.canvas.delete(tag) # Deletes previous 
             self.canvas.create_text(x, y, text=event.char, tags=(tag,), fill='black', font=self.fonttype) # Places a number on the screen with tagged position
             # tags argument should be a tuple or string
+
+    def __start(self):
+        'Begins the dynamic solving of the grid'
+
+        self.grid = [ # Grid representing the 8x8 sudoku grid which is initially empty
+        [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+
+        # Places each user-entered number into self.grid
+        for ypos, row in enumerate(self.grid): # Goes through each row in the grid
+            for xpos, _ in enumerate(row): # Goes through each position in the row
+                    grid_object = self.canvas.find_withtag((ypos,xpos),) # Gets the grid number object with tag at respective position (row, column)
+                    value = self.canvas.itemcget(grid_object, 'text') # Gets the value of the specific grid number; 'text' argument specifies we want to extract the text
+
+                    if value: # If the cell is filled in
+                        self.grid[ypos][xpos] = int(value)
+                    else: # If the cell is empty
+                        self.grid[ypos][xpos] = 0
+
+        # self.grid = [ # A grid used as an example
+        # [1, 0, 6, 0, 0, 2, 0, 0, 0], 
+        # [0, 5, 0, 0, 0, 6, 0, 9, 1],
+        # [0, 0, 9, 5, 0, 1, 4, 6, 2],
+        # [0, 3, 7, 9, 0, 5, 0, 0, 0],
+        # [5, 8, 1, 0, 2, 7, 9, 0, 0],
+        # [0, 0, 0, 4, 0, 8, 1, 5, 7],
+        # [0, 0, 0, 2, 6, 0, 5, 4, 0],
+        # [0, 0, 4, 1, 5, 0, 6, 0, 9],
+        # [9, 0, 0, 8, 7, 4, 2, 1, 0]
+        # ]
+
+        self.__solve_grid() # Solves the filled grid
+        self.__display_solutions() # Displays all solutions
+
+    def __stop(self):
+        'Interrupts the dynamic solving of the grid'
+
+        pass
 
     def __solve_grid(self):
         'Solves the grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
@@ -188,6 +216,16 @@ class SudokuGrid():
 
         return True # No doubles detected
 
+    def __display_number(self): 
+        '''Displays a given number on the grid
+        
+        '''
+
+        # MUST TAKE IN THE TAG AND NUMBER AND INSERT IT INTO THE GRID; FINISH DOCSTRING
+        # __solve_grid method will pass in x and y positions inside the grid
+
+        pass
+
     def __display_solutions(self):
         'Formats and displays all found solutions'
 
@@ -197,40 +235,11 @@ class SudokuGrid():
             print('')
             for row in grid:
                 print(row)
-
-    def __start(self): ################################################################################################################################################################
-        'Begins the dynamic solving of the grid'
-
-        self.grid = [ # Grid representing the 8x8 sudoku grid which is initially empty
-        [0, 0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-
-        # Places each user-entered number into self.grid
-        for ypos, row in enumerate(self.grid): # Goes through each row in the grid
-            for xpos, position in enumerate(row): # Goes through each position in the row
-                    grid_number = self.canvas.find_withtag((ypos,xpos),) # Gets the grid number object with tag at respective position (row, column)
-                    value = self.canvas.itemcget(grid_number, 'text') # Gets the value of the specific grid number
-
-                    if value: # If the cell is filled in
-                        self.grid[ypos][xpos] = int(value)
-                    else: # If the cell is empty
-                        self.grid[ypos][xpos] = 0
-
-        self.__solve_grid() # Solves the filled grid
-        self.__display_solutions() # Displays all solutions
             
 root = tkinter.Tk() # Defines the main window
 root.title('Testing Grid')
 root.resizable('False', 'False')
 
-sudokugrid = SudokuGrid(root) # Interactive Sudoku Grid is created
+GraphicalInterface(root) # GUI instance is created
 
 root.mainloop()
