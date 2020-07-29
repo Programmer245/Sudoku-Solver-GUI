@@ -25,6 +25,8 @@ class GraphicalInterface:
 
         self.__widgets() # Initiates other widgets
 
+    ### PACKING WIDGETS
+
     def __widgets(self):
         'Initiates the widgets in the grid'
 
@@ -63,6 +65,8 @@ class GraphicalInterface:
             x1 = self.height - self.margin
             y1 = self.margin + (i*self.side)
             self.canvas.create_line(x0,y0,x1,y1, fill=color)
+
+    ### MOUSE AND KEYBOARD INPUT HANDLING
 
     def __cell_clicked(self, event):
         '''Handles mouse clicks
@@ -106,15 +110,9 @@ class GraphicalInterface:
         Takes event as argument'''
 
         if (self.row, self.col) != (None, None) and event.char.isnumeric(): # Checks that a square is selected and the entered key is a digit
-            x = round(self.margin + self.side*self.col + self.side/2) # Finds x and y coords of the centre of the selected square
-            y = round(self.margin + self.side*self.row + self.side/2) # Coordinates are rounded to nearest integer
-            
-            tag = (self.row,self.col) # Create a tag from 00 to 88 representing the x and y coords of the centre of the selected square
-            print(f'Tag: {tag}') 
-            
-            self.canvas.delete(tag) # Deletes previous 
-            self.canvas.create_text(x, y, text=event.char, tags=(tag,), fill='black', font=self.fonttype) # Places a number on the screen with tagged position
-            # tags argument should be a tuple or string
+            self.__display_number(self.row, self.col, event.char)
+
+    ### START/STOP METHODS
 
     def __start(self):
         'Begins the dynamic solving of the grid'
@@ -142,17 +140,19 @@ class GraphicalInterface:
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
 
-        # self.grid = [ # A grid used as an example
-        # [1, 0, 6, 0, 0, 2, 0, 0, 0], 
-        # [0, 5, 0, 0, 0, 6, 0, 9, 1],
-        # [0, 0, 9, 5, 0, 1, 4, 6, 2],
-        # [0, 3, 7, 9, 0, 5, 0, 0, 0],
-        # [5, 8, 1, 0, 2, 7, 9, 0, 0],
-        # [0, 0, 0, 4, 0, 8, 1, 5, 7],
-        # [0, 0, 0, 2, 6, 0, 5, 4, 0],
-        # [0, 0, 4, 1, 5, 0, 6, 0, 9],
-        # [9, 0, 0, 8, 7, 4, 2, 1, 0]
-        # ]
+        self.grid = [ # A grid used as an example
+        [1, 0, 6, 0, 0, 2, 0, 0, 0], 
+        [0, 5, 0, 0, 0, 6, 0, 9, 1],
+        [0, 0, 9, 5, 0, 1, 4, 6, 2],
+        [0, 3, 7, 9, 0, 5, 0, 0, 0],
+        [5, 8, 1, 0, 2, 7, 9, 0, 0],
+        [0, 0, 0, 4, 0, 8, 1, 5, 7],
+        [0, 0, 0, 2, 6, 0, 5, 4, 0],
+        [0, 0, 4, 1, 5, 0, 6, 0, 9],
+        [9, 0, 0, 8, 7, 4, 2, 1, 0]
+        ]
+
+        # self.__update_grid()
 
         self.__solve_grid() # Solves the filled grid
         self.__display_solutions() # Displays all solutions
@@ -161,6 +161,8 @@ class GraphicalInterface:
         'Interrupts the dynamic solving of the grid'
 
         pass
+
+    ### LOGIC HANDLING METHODS
 
     def __solve_grid(self):
         'Solves the grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
@@ -171,10 +173,12 @@ class GraphicalInterface:
                     for num in range(1,10): # Tries all numbers from 1 to 9
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
-                            # DISPLAY NUMBER LOGIC ##############
+                            # self.__display_number(ypos, xpos, num)
+
                             self.__solve_grid() # Keeps solving
+
                             self.grid[ypos][xpos] = 0 # If program reaches here, no further numbers can be put into the grid and the square is reset
-                            # DISPLAY NUMBER LOGIC ##############
+                            # self.__display_number(ypos, xpos, 0)
                     
                     return False # No possible solution has been found for an empty position; exits functions
 
@@ -216,15 +220,29 @@ class GraphicalInterface:
 
         return True # No doubles detected
 
-    def __display_number(self): 
+    ### DISPLAYER METHODS
+
+    def __update_grid(self):
+        'Loads the grid and displays each number'
+
+        for ypos, row in enumerate(self.grid): # Goes through each row in the grid
+            for xpos, position in enumerate(row): # Goes through each position in the row
+                    self.__display_number(ypos, xpos, position) # Displays the number
+
+    def __display_number(self, row, column, n): 
         '''Displays a given number on the grid
         
-        '''
+        Takes in the row number, column number, and the value of the number to display'''
 
-        # MUST TAKE IN THE TAG AND NUMBER AND INSERT IT INTO THE GRID; FINISH DOCSTRING
-        # __solve_grid method will pass in x and y positions inside the grid
-
-        pass
+        x = round(self.margin + self.side*column + self.side/2) # Finds x and y coords of the centre of the selected square
+        y = round(self.margin + self.side*row + self.side/2) # Coordinates are rounded to nearest integer
+        
+        tag = (row,column) # Create a tag from 00 to 88 representing the row and column the selected square is in
+        print(f'Tag: {tag}') 
+        
+        self.canvas.delete(tag) # Deletes previous 
+        self.canvas.create_text(x, y, text=n, tags=(tag,), fill='black', font=self.fonttype) # Places a number on the screen with tagged position
+        # tags argument should be a tuple or string
 
     def __display_solutions(self):
         'Formats and displays all found solutions'
