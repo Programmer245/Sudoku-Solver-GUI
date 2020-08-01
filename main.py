@@ -2,6 +2,7 @@
 
 import tkinter
 import copy # Used for creating copies of variables instead of instances
+import threading # Multithreading module
 
 # To retrieve the text from an item with object ID I on a canvas C, call C.itemcget(I, 'text').
 # To replace the text in an item with object ID I on a canvas C with the text from a string S, call C.itemconfigure(I, text=S). 
@@ -13,6 +14,7 @@ class GraphicalInterface:
         self.parent = parent # Parent root frame
 
         self.solutions = [] # Stores all solved grids
+        self.allowed = False # Sets the flag indicating whether the solver thread is allowed to run
 
         self.margin = 20 # Margin size of the sudoku board
         self.side = 50 # Side length of each square in the grid
@@ -31,11 +33,13 @@ class GraphicalInterface:
         'Initiates the widgets in the grid'
 
         self.frame = tkinter.Frame(self.parent) # Creates a frame inside the parent 
-        self.button = tkinter.Button(self.parent, text='Testing', command=self.__start) 
+        self.start_btn = tkinter.Button(self.parent, text='Start', command=self.__start) # Start button
+        self.stop_btn = tkinter.Button(self.parent, text='Stop', command=self.__stop) # Stop button
         self.canvas = tkinter.Canvas(self.frame, bg='lightblue', width=self.width, height=self.height) # Sudoku grid
 
         self.frame.pack()
-        self.button.pack() 
+        self.start_btn.pack()
+        self.stop_btn.pack() 
         self.canvas.pack()
 
         self.__draw_grid() # Draws the grid
@@ -152,15 +156,25 @@ class GraphicalInterface:
         [9, 0, 0, 8, 7, 4, 2, 1, 0]
         ]
 
-        # self.__update_grid()
-
-        self.__solve_grid() # Solves the filled grid
-        self.__display_solutions() # Displays all solutions
+        self.__update_grid() # Updates the grid
+        threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread                
 
     def __stop(self):
         'Interrupts the dynamic solving of the grid'
 
-        pass
+        self.allowed = False # Disallowes the solver thread from running
+
+    def __solver_thread(self):
+        'Thread that solves the grid and then displays the found solutions'
+
+        self.allowed = True # Allows the solver thread to run
+
+        exit_value = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
+
+        if not exit_value: # If it was not interrupted
+            self.__display_solutions() # Displays the solutions
+
+        print(f'Exit value: {exit_value}')
 
     ### LOGIC HANDLING METHODS
 
@@ -171,16 +185,18 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
+                        if not self.allowed: # Not allowed to run
+                            return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
-                            # self.__display_number(ypos, xpos, num)
+                            self.__display_number(ypos, xpos, num)
 
                             self.__solve_grid() # Keeps solving
 
                             self.grid[ypos][xpos] = 0 # If program reaches here, no further numbers can be put into the grid and the square is reset
-                            # self.__display_number(ypos, xpos, 0)
+                            self.__display_number(ypos, xpos, 0)
                     
-                    return False # No possible solution has been found for an empty position; exits functions
+                    return False # No possible solution has been found for an empty position; Exits function by returning None as it was not interrupted
 
         # If program reaches this point, there are no more empty spaces in the grid and a solution has been found
         deepcopy_grid = copy.deepcopy(self.grid) # A copy of the original grid is made
@@ -238,7 +254,7 @@ class GraphicalInterface:
         y = round(self.margin + self.side*row + self.side/2) # Coordinates are rounded to nearest integer
         
         tag = (row,column) # Create a tag from 00 to 88 representing the row and column the selected square is in
-        print(f'Tag: {tag}') 
+        # print(f'Tag: {tag}') DEBUGGING PURPOSES
         
         self.canvas.delete(tag) # Deletes previous 
         self.canvas.create_text(x, y, text=n, tags=(tag,), fill='black', font=self.fonttype) # Places a number on the screen with tagged position
