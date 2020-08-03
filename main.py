@@ -17,7 +17,7 @@ class GraphicalInterface:
         self.allowed = False # Sets the flag indicating whether the solver thread is allowed to run
 
         self.margin = 20 # Margin size of the sudoku board
-        self.side = 50 # Side length of each square in the grid
+        self.side = 40 # Side length of each square in the grid
         self.width = self.height = (self.margin*2) + (self.side*9) # Defines the width and height of the canvas
 
         self.fonttype = ('Helvetica', 20, 'bold') # Stores the font type of the canvas text
@@ -32,17 +32,27 @@ class GraphicalInterface:
     def __widgets(self):
         'Initiates the widgets in the grid'
 
-        self.frame = tkinter.Frame(self.parent) # Creates a frame inside the parent 
-        self.start_btn = tkinter.Button(self.parent, text='Start', command=self.__start) # Start button
-        self.stop_btn = tkinter.Button(self.parent, text='Stop', command=self.__stop) # Stop button
-        self.canvas = tkinter.Canvas(self.frame, bg='lightblue', width=self.width, height=self.height) # Sudoku grid
+        ### LEFT FRAME
 
-        self.frame.pack()
-        self.start_btn.pack()
-        self.stop_btn.pack() 
+        self.left_frame = tkinter.Frame(self.parent) # Left frame placed inside the root widget
+        self.canvas = tkinter.Canvas(self.left_frame, bg='lightblue', width=self.width, height=self.height) # Sudoku grid canvas
+
+        self.left_frame.pack(side=tkinter.LEFT) # Packs the grid
         self.canvas.pack()
 
-        self.__draw_grid() # Draws the grid
+        ### RIGHT FRAME
+
+        self.right_frame = tkinter.Frame(self.parent) # Right frame placed inside the root widget
+        self.start_btn = tkinter.Button(self.right_frame, text='Start', command=self.__start) # Start button
+        self.stop_btn = tkinter.Button(self.right_frame, text='Stop', command=self.__stop) # Stop button                             
+
+        self.right_frame.pack(side=tkinter.RIGHT) # Packs the grid
+        self.start_btn.grid(row=0, column=0)
+        self.stop_btn.grid(row=0, column=1) 
+
+        ### BINDING MOUSE AND KEYBOARD EVENTS
+
+        self.__draw_grid() # Draws the empty grid
 
         self.canvas.bind('<Button-1>', self.__cell_clicked) # Binds left click to selecting a cell
         self.parent.bind('<Key>', self.__key_pressed) # Binds key pressed to entering a key; must be binded to root
@@ -78,11 +88,11 @@ class GraphicalInterface:
         Takes event as argument'''
 
         x, y = event.x, event.y # Finds the x and y coordinate of the click
-        print(f'Clicked at {x},{y}') 
+        # print(f'Clicked at {x},{y}') DEBUGGING PURPOSES
 
         if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
             row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
-            print(f'Clicked at row {row}, column {col}') 
+            # print(f'Clicked at row {row}, column {col}') DEBUGGING PURPOSES
 
             if (row, col) == (self.row, self.col): # If cell is already selected, deselect it
                 self.row, self.col = None, None
@@ -144,7 +154,7 @@ class GraphicalInterface:
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
 
-        self.grid = [ # A grid used as an example
+        self.grid = [ # A temporary grid used for debugging purposes
         [1, 0, 6, 0, 0, 2, 0, 0, 0], 
         [0, 5, 0, 0, 0, 6, 0, 9, 1],
         [0, 0, 9, 5, 0, 1, 4, 6, 2],
@@ -164,6 +174,8 @@ class GraphicalInterface:
 
         self.allowed = False # Disallowes the solver thread from running
 
+        # Missing additional logic
+
     def __solver_thread(self):
         'Thread that solves the grid and then displays the found solutions'
 
@@ -174,7 +186,7 @@ class GraphicalInterface:
         if not exit_value: # If it was not interrupted
             self.__display_solutions() # Displays the solutions
 
-        print(f'Exit value: {exit_value}')
+        print(f'Exit value: {exit_value}') # DEBUGGING PURPOSES
 
     ### LOGIC HANDLING METHODS
 
@@ -271,8 +283,8 @@ class GraphicalInterface:
                 print(row)
             
 root = tkinter.Tk() # Defines the main window
-root.title('Testing Grid')
-root.resizable('False', 'False')
+root.title('Sudoku Solver') # Sets the title of the window
+root.resizable('False', 'False') # Disables resizing
 
 GraphicalInterface(root) # GUI instance is created
 
