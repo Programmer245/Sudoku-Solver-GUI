@@ -1,6 +1,8 @@
 '''Sudoku Solver Main Module'''
 
 import tkinter
+from tkinter import ttk # Used for scrollbar
+
 import copy # Used for creating copies of variables instead of instances
 import threading # Multithreading module
 
@@ -20,7 +22,8 @@ class GraphicalInterface:
         self.side = 40 # Side length of each square in the grid
         self.width = self.height = (self.margin*2) + (self.side*9) # Defines the width and height of the canvas
 
-        self.fonttype = ('Helvetica', 20, 'bold') # Stores the font type of the canvas text
+        self.buttonfont = ('Helvetica', 10, 'bold') # Font type of buttons
+        self.gridfont = ('Helvetica', 20, 'bold') # Font type of sudoku grid
         
         self.row = None  # Currently selected cell row and colunm
         self.col = None
@@ -43,12 +46,24 @@ class GraphicalInterface:
         ### RIGHT FRAME
 
         self.right_frame = tkinter.Frame(self.parent) # Right frame placed inside the root widget
-        self.start_btn = tkinter.Button(self.right_frame, text='Start', command=self.__start) # Start button
-        self.stop_btn = tkinter.Button(self.right_frame, text='Stop', command=self.__stop) # Stop button                             
+        self.scrollbar = tkinter.Scrollbar(self.right_frame) # Scrollbar for the text widget
+        self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=40, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions
+        self.loading_bar = ttk.Progressbar(self.right_frame, orient=tkinter.HORIZONTAL, length=100, mode='indeterminate') # Indeterminate loading bar does not fill gradually but rather sweeps across
+        self.start_btn = tkinter.Button(self.right_frame, text='Start', font=self.buttonfont, command=self.__start) # Start button
+        self.stop_btn = tkinter.Button(self.right_frame, text='Stop', font=self.buttonfont, state=tkinter.DISABLED, command=self.__stop) # Stop button     
+        self.reset_btn = tkinter.Button(self.right_frame, text=u'\u21BA', font=self.buttonfont, state=tkinter.DISABLED, command=self.__reset) # Reset button              
 
         self.right_frame.pack(side=tkinter.RIGHT) # Packs the grid
-        self.start_btn.grid(row=0, column=0)
-        self.stop_btn.grid(row=0, column=1) 
+        self.scrollbar.grid(row=0, column=4, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom
+        self.solved_grids_display.grid(row=0, column=0, columnspan=3)
+        self.loading_bar.grid(row=1, column=0, columnspan=3, sticky=tkinter.EW) # sticky parameter makes scrollbar stretch from left to right
+        self.start_btn.grid(row=2, column=0)
+        self.stop_btn.grid(row=2, column=1) 
+        self.reset_btn.grid(row=2, column=2)
+
+        ### WIDGET CONFIGURATION
+
+        self.scrollbar.config(command=self.solved_grids_display.yview) # Configures the scrolling of the text widget
 
         ### BINDING MOUSE AND KEYBOARD EVENTS
 
@@ -176,6 +191,11 @@ class GraphicalInterface:
 
         # Missing additional logic
 
+    def __reset(self):
+        'Resets the graphical user interface'
+
+        pass
+
     def __solver_thread(self):
         'Thread that solves the grid and then displays the found solutions'
 
@@ -257,6 +277,11 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                     self.__display_number(ypos, xpos, position) # Displays the number
 
+    def __update_loading_bar(self):
+        'Updates the loading bar'
+        
+        pass
+
     def __display_number(self, row, column, n): 
         '''Displays a given number on the grid
         
@@ -269,7 +294,7 @@ class GraphicalInterface:
         # print(f'Tag: {tag}') DEBUGGING PURPOSES
         
         self.canvas.delete(tag) # Deletes previous 
-        self.canvas.create_text(x, y, text=n, tags=(tag,), fill='black', font=self.fonttype) # Places a number on the screen with tagged position
+        self.canvas.create_text(x, y, text=n, tags=(tag,), fill='black', font=self.gridfont) # Places a number on the screen with tagged position
         # tags argument should be a tuple or string
 
     def __display_solutions(self):
