@@ -35,25 +35,47 @@ class GraphicalInterface:
     def __widgets(self):
         'Initiates the widgets in the grid'
 
-        ### LEFT FRAME
+        ### MENUBAR 
+
+        menubar = tkinter.Menu(root) # Creates the menubar object 
+        root.config(menu=menubar) # Sets menubar object in root
+
+        option_submenu = tkinter.Menu(menubar, tearoff=0) # Creates options submenu 
+        menubar.add_cascade(label='Options', menu=option_submenu) # Places the submenu inside the menubar
+        option_submenu.add_checkbutton(label='Auto Save') # Adds a checkbutton to the option submenu
+        option_submenu.add_separator() # Adds a line separator
+        option_submenu.add_command(label='Exit', command=exit) # Adds exit button
+
+        help_submenu = tkinter.Menu(menubar, tearoff=0) # Creates help submenu 
+        menubar.add_cascade(label='Help', menu=help_submenu) # Places the submenu inside the menubar
+        help_submenu.add_command(label='About Sudoku Solver', command=self.__about) # About button that opens README.txt
+        help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.txt
+
+        ### SCROLLBAR & STATUS LABEL
+
+        self.scrollbar = tkinter.Scrollbar(root) # Scrollbar for the text widget
+        self.scrollbar.grid(row=0, column=2, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom; added on right side of GUI
+
+        self.status_bar = tkinter.Label(root, text='Status Bar.', anchor=tkinter.E) # Status bar for displaying various status updates
+        self.status_bar.grid(row=1, column=0, columnspan=3, sticky=tkinter.EW) # sticky parameter makes the label stretch from left to right; added at the bottom of the GUI
+        
+        ### LEFT FRAME (Contains Sudoku Grid)
 
         self.left_frame = tkinter.Frame(self.parent) # Left frame placed inside the root widget
         self.canvas = tkinter.Canvas(self.left_frame, bg='lightblue', width=self.width, height=self.height) # Sudoku grid canvas
 
-        self.left_frame.pack(side=tkinter.LEFT) # Packs the grid
-        self.canvas.pack()
+        self.left_frame.grid(row=0, column=0) # Positions the frame on the left of the GUI
+        self.canvas.grid()
 
-        ### RIGHT FRAME
+        ### RIGHT FRAME (Contains solutions display grid and execution buttons)
 
         self.right_frame = tkinter.Frame(self.parent) # Right frame placed inside the root widget
-        self.scrollbar = tkinter.Scrollbar(self.right_frame) # Scrollbar for the text widget
         self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=40, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
 
-        self.right_frame.pack(side=tkinter.RIGHT) # Packs the grid
-        self.scrollbar.grid(row=0, column=1, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom
+        self.right_frame.grid(row=0, column=1) # Positions the frame on the right of the GUI
         self.solved_grids_display.grid(row=0, column=0)
         
-        ###### RIGHT FRAME BUTTONS LABEL FRAME
+        ###### RIGHT FRAME BUTTONS LABEL FRAME (Contains execution buttons)
 
         self.buttons_label_frame = tkinter.LabelFrame(self.right_frame, text='Configure') # Buttons sub frame inside right frame
         self.start_btn = tkinter.Button(self.buttons_label_frame, text='Start', font=self.buttonfont, command=self.__start) # Start button
@@ -63,7 +85,7 @@ class GraphicalInterface:
 
         self.buttons_label_frame.grid(row=1, column=0, columnspan=2) # Places label frame inside the right frame
         self.start_btn.grid(row=1, column=0)
-        self.loading_bar.grid(row=1, column=1, sticky=tkinter.EW) # sticky parameter makes scrollbar stretch from left to right
+        self.loading_bar.grid(row=1, column=1, sticky=tkinter.EW) # sticky parameter makes loading bar stretch from left to right
         self.stop_btn.grid(row=1, column=2) 
         self.reset_btn.grid(row=1, column=3)
 
@@ -207,11 +229,11 @@ class GraphicalInterface:
 
         self.allowed = True # Allows the solver thread to run
 
-        self.loading_bar.start()
+        self.loading_bar.start() # Starts the loading bar animation
 
         exit_value = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
 
-        self.loading_bar.stop()
+        self.loading_bar.stop() # Stops the loading bar animation
 
         if not exit_value: # If it was not interrupted
             self.__display_solutions() # Displays the solutions
@@ -311,7 +333,19 @@ class GraphicalInterface:
             print('')
             for row in grid:
                 print(row)
-            
+
+    ### MENUBAR SETTINGS METHODS
+
+    def __about(self):
+        'Opens the README for the program'
+
+        pass
+
+    def __licence(self):
+        'Opens the LICENCE for the program'
+
+        pass
+
 root = tkinter.Tk() # Defines the main window
 root.title('Sudoku Solver') # Sets the title of the window
 root.resizable('False', 'False') # Disables resizing
