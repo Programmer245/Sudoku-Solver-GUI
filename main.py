@@ -75,7 +75,7 @@ class GraphicalInterface:
         ### RIGHT FRAME (Contains solutions display grid and execution buttons)
 
         self.right_frame = tkinter.Frame(self.parent) # Right frame placed inside the root widget
-        self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=40, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
+        self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=40, font=self.buttonfont, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
 
         self.right_frame.grid(row=0, column=1) # Positions the frame on the right of the GUI
         self.solved_grids_display.grid(row=0, column=0)
@@ -270,6 +270,8 @@ class GraphicalInterface:
         # If program reaches this point, there are no more empty spaces in the grid and a solution has been found
         deepcopy_grid = copy.deepcopy(self.grid) # A copy of the original grid is made
         self.solutions.append(deepcopy_grid) # Solution added to list of solutions
+
+        self.__update_solved_grids(self.grid) # Inserts the solution grid in the solutions text widget
     
     def __possible(self, x, y, n):
         '''Returns True or False if a number can fit in a specific position in the grid 
@@ -313,6 +315,21 @@ class GraphicalInterface:
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
                     self.__display_number(ypos, xpos, position) # Displays the number
+                    
+    def __update_solved_grids(self, solution_grid):
+        '''Inserts found solution in the solved grids text widget
+        
+        Takes in the solution grid'''
+
+        self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily activates the text widget
+
+        for row in solution_grid: # For each row in the solution grid
+            # print(row) DEBUGGING PURPOSES
+            self.solved_grids_display.insert(tkinter.END, f'{row}\n') # Appends the row to the text widget
+
+        self.solved_grids_display.insert(tkinter.END, '\n') # Adds a separator between the solutions
+
+        self.solved_grids_display.config(state=tkinter.DISABLED) # Deactivates the text widget
 
     def __display_number(self, row, column, n): 
         '''Displays a given number on the grid
