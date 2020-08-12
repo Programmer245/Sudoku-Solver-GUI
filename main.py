@@ -48,8 +48,8 @@ class GraphicalInterface:
 
         help_submenu = tkinter.Menu(menubar, tearoff=0) # Creates help submenu 
         menubar.add_cascade(label='Help', menu=help_submenu) # Places the submenu inside the menubar
-        help_submenu.add_command(label='About Sudoku Solver', command=self.__about) # About button that opens README.txt
-        help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.txt
+        help_submenu.add_command(label='About Sudoku Solver', command=self.__about) # About button that opens README.md
+        help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.md
 
         ### SCROLLBAR & STATUS LABEL
 
