@@ -4,7 +4,10 @@ import tkinter
 from tkinter import ttk # Used for scrollbar
 
 import copy # Used for creating copies of variables instead of instances
+
 import threading # Multithreading module
+
+import os # Module for opening files
 
 # To retrieve the text from an item with object ID I on a canvas C, call C.itemcget(I, 'text').
 # To replace the text in an item with object ID I on a canvas C with the text from a string S, call C.itemconfigure(I, text=S). 
@@ -23,6 +26,7 @@ class GraphicalInterface:
         self.width = self.height = (self.margin*2) + (self.side*9) # Defines the width and height of the canvas
 
         self.buttonfont = ('Helvetica', 10, 'bold') # Font type of buttons
+        self.statusfont = ('Helvetica', 7) # Font type for the status bar
         self.gridfont = ('Helvetica', 20, 'bold') # Font type of sudoku grid
         
         self.row = None  # Currently selected cell row and colunm
@@ -49,6 +53,7 @@ class GraphicalInterface:
         help_submenu = tkinter.Menu(menubar, tearoff=0) # Creates help submenu 
         menubar.add_cascade(label='Help', menu=help_submenu) # Places the submenu inside the menubar
         help_submenu.add_command(label='About Sudoku Solver', command=self.__about) # About button that opens README.md
+        help_submenu.add_separator() # Adds a line separator
         help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.md
 
         ### SCROLLBAR & STATUS LABEL
@@ -56,7 +61,7 @@ class GraphicalInterface:
         self.scrollbar = tkinter.Scrollbar(root) # Scrollbar for the text widget
         self.scrollbar.grid(row=0, column=2, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom; added on right side of GUI
 
-        self.status_bar = tkinter.Label(root, text='Status Bar.', anchor=tkinter.E) # Status bar for displaying various status updates
+        self.status_bar = tkinter.Label(root, text='Status Bar.', font=self.statusfont, bg='lightgrey', anchor=tkinter.E) # Status bar for displaying various status updates
         self.status_bar.grid(row=1, column=0, columnspan=3, sticky=tkinter.EW) # sticky parameter makes the label stretch from left to right; added at the bottom of the GUI
         
         ### LEFT FRAME (Contains Sudoku Grid)
@@ -339,15 +344,16 @@ class GraphicalInterface:
     def __about(self):
         'Opens the README for the program'
 
-        pass
+        os.system('README.md')
 
     def __licence(self):
         'Opens the LICENCE for the program'
 
-        pass
+        os.system('LICENCE.md')
 
 root = tkinter.Tk() # Defines the main window
 root.title('Sudoku Solver') # Sets the title of the window
+root.iconbitmap('sudoku_icon.ico') # Sets the icon for the window
 root.resizable('False', 'False') # Disables resizing
 
 GraphicalInterface(root) # GUI instance is created
