@@ -9,6 +9,8 @@ import threading # Multithreading module
 
 import os # Module for opening files
 
+import time # Time module for delays
+
 # To retrieve the text from an item with object ID I on a canvas C, call C.itemcget(I, 'text').
 # To replace the text in an item with object ID I on a canvas C with the text from a string S, call C.itemconfigure(I, text=S). 
 
@@ -176,6 +178,27 @@ class GraphicalInterface:
 
     ### START/STOP METHODS
 
+    def __solver_thread(self):
+        'Main solver thread'
+
+        self.allowed = True # Allows the solver thread to run
+        self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
+        self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
+
+        self.loading_bar.start() # Starts the loading bar animation
+
+        exit_value = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
+
+        self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
+        self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
+
+        self.loading_bar.stop() # Stops the loading bar animation
+
+        if not exit_value: # Displays all solutions only if it was not interrupted
+            self.__display_solutions() 
+
+        print(f'Exit value: {exit_value}') # DEBUGGING PURPOSES
+
     def __start(self):
         'Begins the dynamic solving of the grid'
 
@@ -191,7 +214,7 @@ class GraphicalInterface:
         [0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]
 
-        # Places each user-entered number into self.grid
+        # Stores each user-entered number in self.grid
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
             for xpos, _ in enumerate(row): # Goes through each position in the row
                     grid_object = self.canvas.find_withtag((ypos,xpos),) # Gets the grid number object with tag at respective position (row, column)
@@ -202,7 +225,7 @@ class GraphicalInterface:
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
 
-        self.grid = [ # A temporary grid used for debugging purposes
+        self.temp_grid = [ # A temporary grid used for debugging purposes
         [1, 0, 6, 0, 0, 2, 0, 0, 0], 
         [0, 5, 0, 0, 0, 6, 0, 9, 1],
         [0, 0, 9, 5, 0, 1, 4, 6, 2],
@@ -214,7 +237,7 @@ class GraphicalInterface:
         [9, 0, 0, 8, 7, 4, 2, 1, 0]
         ]
 
-        self.__update_grid() # Updates the grid
+        self.__update_grid(self.temp_grid) # Displays the grid
         threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread                
 
     def __stop(self):
@@ -227,23 +250,12 @@ class GraphicalInterface:
     def __reset(self):
         'Resets the graphical user interface'
 
-        pass
+        self.start_btn.config(state=tkinter.NORMAL) # Renables the start button
+        self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
 
-    def __solver_thread(self):
-        'Thread that solves the grid and then displays the found solutions'
+        self.solutions = [] # Resets all the found solutions
 
-        self.allowed = True # Allows the solver thread to run
-
-        self.loading_bar.start() # Starts the loading bar animation
-
-        exit_value = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
-
-        self.loading_bar.stop() # Stops the loading bar animation
-
-        if not exit_value: # If it was not interrupted
-            self.__display_solutions() # Displays the solutions
-
-        print(f'Exit value: {exit_value}') # DEBUGGING PURPOSES
+        # Needs to clear entire grid
 
     ### LOGIC HANDLING METHODS
 
@@ -254,6 +266,7 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
+                        time.sleep(0.2) ######################################################################################################################
                         if not self.allowed: # Not allowed to run
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
@@ -309,11 +322,12 @@ class GraphicalInterface:
 
     ### DISPLAYER METHODS
 
-    def __update_grid(self):
-        'Loads the grid and displays each number'
+    def __update_grid(self, grid):
+        'Loads a particular grid'
 
-        for ypos, row in enumerate(self.grid): # Goes through each row in the grid
+        for ypos, row in enumerate(grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
+                if position: # If the number does not equal to 0
                     self.__display_number(ypos, xpos, position) # Displays the number
                     
     def __update_solved_grids(self, solution_grid):
