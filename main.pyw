@@ -40,9 +40,9 @@ class GraphicalInterface:
         self.side = 40 # Side length of each square in the grid
         self.width = self.height = (self.margin*2) + (self.side*9) # Defines the width and height of the canvas
 
-        self.buttonfont = ('Helvetica', 10, 'bold') # Font type of buttons
+        self.buttonfont = ('Helvetica', 8) # Font type of buttons
         self.statusfont = ('Helvetica', 7) # Font type for the status bar
-        self.gridfont = ('Helvetica', 20, 'bold') # Font type of sudoku grid
+        self.gridfont = ('Helvetica', 10, 'bold') # Font type of sudoku grid
         
         self.row = None  # Currently selected cell row and colunm
         self.col = None
@@ -71,7 +71,7 @@ class GraphicalInterface:
         help_submenu.add_separator() # Adds a line separator
         help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.md
 
-        ### SCROLLBAR & STATUS LABEL
+        ### SCROLLBAR & STATUS BAR
 
         self.scrollbar = tkinter.Scrollbar(root) # Scrollbar for the text widget
         self.scrollbar.grid(row=0, column=2, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom; added on right side of GUI
@@ -82,7 +82,7 @@ class GraphicalInterface:
         ### LEFT FRAME (Contains Sudoku Grid)
 
         self.left_frame = tkinter.Frame(self.parent) # Left frame placed inside the root widget
-        self.canvas = tkinter.Canvas(self.left_frame, bg='lightblue', width=self.width, height=self.height) # Sudoku grid canvas
+        self.canvas = tkinter.Canvas(self.left_frame, width=self.width, height=self.height) # Sudoku grid canvas
 
         self.left_frame.grid(row=0, column=0) # Positions the frame on the left of the GUI
         self.canvas.grid()
@@ -90,9 +90,9 @@ class GraphicalInterface:
         ### RIGHT FRAME (Contains solutions display grid and execution buttons)
 
         self.right_frame = tkinter.Frame(self.parent) # Right frame placed inside the root widget
-        self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=40, font=self.buttonfont, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
+        self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=30, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
 
-        self.right_frame.grid(row=0, column=1) # Positions the frame on the right of the GUI
+        self.right_frame.grid(row=0, column=1, padx=(0,20)) # Positions the frame on the right of the GUI
         self.solved_grids_display.grid(row=0, column=0)
         
         ###### RIGHT FRAME BUTTONS LABEL FRAME (Contains execution buttons)
@@ -101,7 +101,7 @@ class GraphicalInterface:
         self.start_btn = tkinter.Button(self.buttons_label_frame, text='Start', font=self.buttonfont, command=self.__start) # Start button
         self.loading_bar = ttk.Progressbar(self.buttons_label_frame, orient=tkinter.HORIZONTAL, mode='indeterminate', maximum='20') # Indeterminate loading bar does not fill gradually but rather sweeps across
         self.stop_btn = tkinter.Button(self.buttons_label_frame, text='Stop', font=self.buttonfont, state=tkinter.DISABLED, command=self.__stop) # Stop button     
-        self.reset_btn = tkinter.Button(self.buttons_label_frame, text=u'\u21BA', font=self.buttonfont, state=tkinter.DISABLED, command=self.__reset) # Reset button   
+        self.reset_btn = tkinter.Button(self.buttons_label_frame, text='Reset', font=self.buttonfont, state=tkinter.DISABLED, command=self.__reset) # Reset button   
 
         self.buttons_label_frame.grid(row=1, column=0, columnspan=2) # Places label frame inside the right frame
         self.start_btn.grid(row=1, column=0)
@@ -112,6 +112,9 @@ class GraphicalInterface:
         ### WIDGET CONFIGURATION
 
         self.scrollbar.config(command=self.solved_grids_display.yview) # Configures the scrolling of the text widget
+
+        self.solved_grids_display.tag_configure('header', font=('Helvetica', 12, 'bold'), justify=tkinter.CENTER) # Configures the header font properties of the text widget
+        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 12, 'bold'), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
 
         ### BINDING MOUSE AND KEYBOARD EVENTS
 
@@ -151,23 +154,24 @@ class GraphicalInterface:
         Takes event as argument'''
 
         x, y = event.x, event.y # Finds the x and y coordinate of the click
-        # print(f'Clicked at {x},{y}') DEBUGGING PURPOSES
+        print(f'Clicked at {x},{y}') # DEBUGGING PURPOSES
 
-        if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
-            row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
-            # print(f'Clicked at row {row}, column {col}') DEBUGGING PURPOSES
+        if not self.allowed: # Box selection functionality only available if program is NOT running
+            if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
+                row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
+                print(f'Clicked at row {row}, column {col}') # DEBUGGING PURPOSES
 
-            if (row, col) == (self.row, self.col): # If cell is already selected, deselect it
-                self.row, self.col = None, None
+                if (row, col) == (self.row, self.col): # If cell is already selected, deselect it
+                    self.row, self.col = None, None
 
-            else: # If it is not selected, select it
-                self.row, self.col = row, col
+                else: # If it is not selected, select it
+                    self.row, self.col = row, col
 
-            self.__draw_border() # Handles the box selection
+                self.__draw_border() # Handles the box selection
 
-        else: # If the user clicks outside the canvas
-            self.row, self.col = None, None # Resets the currently selected cell row and colunm
-            self.canvas.delete('cursor') # Deletes the previous cursor
+            else: # If the user clicks outside the canvas
+                self.row, self.col = None, None # Resets the currently selected cell row and colunm
+                self.canvas.delete('cursor') # Deletes the previous cursor
 
     def __draw_border(self):
         'Draws the border around the clicked square'
@@ -291,7 +295,7 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
-                        # time.sleep(0.1) ######################################################################################################################
+                        time.sleep(0.1) ######################################################################################################################
                         if not self.allowed: # Not allowed to run
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
@@ -358,19 +362,19 @@ class GraphicalInterface:
                     self.__display_number(ypos, xpos, None) # Empties square
                     
     def __update_solved_grids(self):
-        'Updates solved grids text widget by displaying all the found solutions from self.solutions'
+        'Updates solved grids text widget by displaying all the found solutions from self.solutions every time it is called'
 
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily activates the text widget
-
         self.solved_grids_display.delete(1.0, 'end') # Clears entire widget
 
-        self.solved_grids_display.insert('end', f'---------{len(self.solutions)} Solutions Found---------\n') # Adds header
+        self.solved_grids_display.insert('end', f'<<< {len(self.solutions)} Solution(s) Found >>>\n', 'header') # Adds header with header tag
 
         for grid in self.solutions: # For each solution
+            self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
             for row in grid: # For each row in the solution grid
                 # print(row) DEBUGGING PURPOSES
-                self.solved_grids_display.insert('end', f'\n{row}') # Appends the row to the text widget
-            self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
+                self.solved_grids_display.insert('end', f'{row}\n', 'solutions') # Appends the row to the text widget with solutions tag
+            self.solved_grids_display.see('end') # Automatically scrolls to the end of the widget
 
         self.solved_grids_display.config(state=tkinter.DISABLED) # Deactivates the text widget
 
