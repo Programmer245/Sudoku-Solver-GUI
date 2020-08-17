@@ -2,6 +2,7 @@
 
 import tkinter
 from tkinter import ttk # Used for scrollbar
+from tkinter import messagebox # Used for message boxes 
 
 import copy # Used for creating copies of variables instead of instances
 
@@ -19,6 +20,18 @@ class GraphicalInterface:
 
     def __init__(self, parent): # Parent is the main window
         self.parent = parent # Parent root frame
+
+        self.empty_grid = [ # Empty grid used to reset program
+        [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
 
         self.solutions = [] # Stores all solved grids
         self.allowed = False # Sets the flag indicating whether the solver thread is allowed to run
@@ -63,7 +76,7 @@ class GraphicalInterface:
         self.scrollbar = tkinter.Scrollbar(root) # Scrollbar for the text widget
         self.scrollbar.grid(row=0, column=2, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom; added on right side of GUI
 
-        self.status_bar = tkinter.Label(root, text='Status Bar.', font=self.statusfont, bg='lightgrey', anchor=tkinter.E) # Status bar for displaying various status updates
+        self.status_bar = tkinter.Label(root, text='Awaiting commands.', font=self.statusfont, bg='lightgrey', anchor=tkinter.E) # Status bar for displaying various status updates
         self.status_bar.grid(row=1, column=0, columnspan=3, sticky=tkinter.EW) # sticky parameter makes the label stretch from left to right; added at the bottom of the GUI
         
         ### LEFT FRAME (Contains Sudoku Grid)
@@ -174,7 +187,8 @@ class GraphicalInterface:
         Takes event as argument'''
 
         if (self.row, self.col) != (None, None) and event.char.isnumeric(): # Checks that a square is selected and the entered key is a digit
-            self.__display_number(self.row, self.col, event.char)
+            self.__display_number(self.row, self.col, event.char, color='red')
+            self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
 
     ### START/STOP METHODS
 
@@ -184,6 +198,7 @@ class GraphicalInterface:
         self.allowed = True # Allows the solver thread to run
         self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
         self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
+        self.status_bar.config(text='Executing solve.') # Updates status bar
 
         self.loading_bar.start() # Starts the loading bar animation
 
@@ -194,10 +209,13 @@ class GraphicalInterface:
 
         self.loading_bar.stop() # Stops the loading bar animation
 
+        print(f'Exit value: {exit_value}') # DEBUGGING PURPOSES
+
         if not exit_value: # Displays all solutions only if it was not interrupted
             self.__display_solutions() 
-
-        print(f'Exit value: {exit_value}') # DEBUGGING PURPOSES
+            self.status_bar.config(text='Execution successful.') # Updates status bar
+        else: # If program was interrupted
+            self.status_bar.config(text='Execution interrupted.') # Updates status bar
 
     def __start(self):
         'Begins the dynamic solving of the grid'
@@ -219,13 +237,14 @@ class GraphicalInterface:
             for xpos, _ in enumerate(row): # Goes through each position in the row
                     grid_object = self.canvas.find_withtag((ypos,xpos),) # Gets the grid number object with tag at respective position (row, column)
                     value = self.canvas.itemcget(grid_object, 'text') # Gets the value of the specific grid number; 'text' argument specifies we want to extract the text
+                    # Note that value could be None
 
                     if value: # If the cell is filled in
                         self.grid[ypos][xpos] = int(value)
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
 
-        self.temp_grid = [ # A temporary grid used for debugging purposes
+        self.grid = [ # A temporary grid used for debugging purposes
         [1, 0, 6, 0, 0, 2, 0, 0, 0], 
         [0, 5, 0, 0, 0, 6, 0, 9, 1],
         [0, 0, 9, 5, 0, 1, 4, 6, 2],
@@ -237,7 +256,7 @@ class GraphicalInterface:
         [9, 0, 0, 8, 7, 4, 2, 1, 0]
         ]
 
-        self.__update_grid(self.temp_grid) # Displays the grid
+        self.__update_grid(self.grid) # Displays the grid
         threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread                
 
     def __stop(self):
@@ -255,18 +274,24 @@ class GraphicalInterface:
 
         self.solutions = [] # Resets all the found solutions
 
-        # Needs to clear entire grid
+        self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily enables widget
+        self.solved_grids_display.delete(1.0, 'end') # Clears the entire solved solutions text widget
+        self.solved_grids_display.config(state=tkinter.DISABLED) # Disables widget again
+
+        self.__update_grid(self.empty_grid) # Displays the empty grid
+
+        self.status_bar.config(text='Reset complete.') # Updates the status bar
 
     ### LOGIC HANDLING METHODS
 
     def __solve_grid(self):
-        'Solves the grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
+        'Solves the grid in self.grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
         
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
-                        time.sleep(0.2) ######################################################################################################################
+                        # time.sleep(0.1) ######################################################################################################################
                         if not self.allowed: # Not allowed to run
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
@@ -276,7 +301,7 @@ class GraphicalInterface:
                             self.__solve_grid() # Keeps solving
 
                             self.grid[ypos][xpos] = 0 # If program reaches here, no further numbers can be put into the grid and the square is reset
-                            self.__display_number(ypos, xpos, 0)
+                            self.__display_number(ypos, xpos, None) # Empties the sudoku square
                     
                     return False # No possible solution has been found for an empty position; Exits function by returning None as it was not interrupted
 
@@ -284,7 +309,7 @@ class GraphicalInterface:
         deepcopy_grid = copy.deepcopy(self.grid) # A copy of the original grid is made
         self.solutions.append(deepcopy_grid) # Solution added to list of solutions
 
-        self.__update_solved_grids(self.grid) # Inserts the solution grid in the solutions text widget
+        self.__update_solved_grids() # Updates the solved solutions text widget
     
     def __possible(self, x, y, n):
         '''Returns True or False if a number can fit in a specific position in the grid 
@@ -328,27 +353,31 @@ class GraphicalInterface:
         for ypos, row in enumerate(grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position: # If the number does not equal to 0
-                    self.__display_number(ypos, xpos, position) # Displays the number
+                    self.__display_number(ypos, xpos, position, color='red') # Displays the number
+                else: # If the number is 0, square is supposed to be empty
+                    self.__display_number(ypos, xpos, None) # Empties square
                     
-    def __update_solved_grids(self, solution_grid):
-        '''Inserts found solution in the solved grids text widget
-        
-        Takes in the solution grid'''
+    def __update_solved_grids(self):
+        'Updates solved grids text widget by displaying all the found solutions from self.solutions'
 
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily activates the text widget
 
-        for row in solution_grid: # For each row in the solution grid
-            # print(row) DEBUGGING PURPOSES
-            self.solved_grids_display.insert(tkinter.END, f'{row}\n') # Appends the row to the text widget
+        self.solved_grids_display.delete(1.0, 'end') # Clears entire widget
 
-        self.solved_grids_display.insert(tkinter.END, '\n') # Adds a separator between the solutions
+        self.solved_grids_display.insert('end', f'---------{len(self.solutions)} Solutions Found---------\n') # Adds header
+
+        for grid in self.solutions: # For each solution
+            for row in grid: # For each row in the solution grid
+                # print(row) DEBUGGING PURPOSES
+                self.solved_grids_display.insert('end', f'\n{row}') # Appends the row to the text widget
+            self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
 
         self.solved_grids_display.config(state=tkinter.DISABLED) # Deactivates the text widget
 
-    def __display_number(self, row, column, n): 
+    def __display_number(self, row, column, n, color='black'): 
         '''Displays a given number on the grid
         
-        Takes in the row number, column number, and the value of the number to display'''
+        Takes in the row number, column number, value of the number to display, and optional font color'''
 
         x = round(self.margin + self.side*column + self.side/2) # Finds x and y coords of the centre of the selected square
         y = round(self.margin + self.side*row + self.side/2) # Coordinates are rounded to nearest integer
@@ -357,13 +386,13 @@ class GraphicalInterface:
         # print(f'Tag: {tag}') DEBUGGING PURPOSES
         
         self.canvas.delete(tag) # Deletes previous 
-        self.canvas.create_text(x, y, text=n, tags=(tag,), fill='black', font=self.gridfont) # Places a number on the screen with tagged position
+        self.canvas.create_text(x, y, text=n, tags=(tag,), fill=color, font=self.gridfont) # Places a number on the screen with tagged position
         # tags argument should be a tuple or string
 
     def __display_solutions(self):
-        'Formats and displays all found solutions'
+        'Formats and displays all found solutions on the terminal'
 
-        print(f'\n-----------------------{len(self.solutions)} Solutions Found.-----------------------')
+        print(f'\n-----------------------{len(self.solutions)} Solutions Found-----------------------')
         
         for grid in self.solutions: # Prints out each solution
             print('')
@@ -375,12 +404,12 @@ class GraphicalInterface:
     def __about(self):
         'Opens the README for the program'
 
-        os.system('README.md')
+        os.system('README.md') # Opens README.md with an adequate program like notepad
 
     def __licence(self):
         'Opens the LICENCE for the program'
 
-        os.system('LICENCE.md')
+        os.system('LICENCE.md') # Opens README.md with an adequate program like notepad
 
 root = tkinter.Tk() # Defines the main window
 root.title('Sudoku Solver') # Sets the title of the window
