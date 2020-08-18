@@ -113,8 +113,8 @@ class GraphicalInterface:
 
         self.scrollbar.config(command=self.solved_grids_display.yview) # Configures the scrolling of the text widget
 
-        self.solved_grids_display.tag_configure('header', font=('Helvetica', 12, 'bold'), justify=tkinter.CENTER) # Configures the header font properties of the text widget
-        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 12, 'bold'), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
+        self.solved_grids_display.tag_configure('header', font=('Helvetica', 10), justify=tkinter.CENTER) # Configures the header font properties of the text widget
+        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 10), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
 
         ### BINDING MOUSE AND KEYBOARD EVENTS
 
@@ -235,6 +235,7 @@ class GraphicalInterface:
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]
+        self.count = 0 # Stores the number of clues that have been entered
 
         # Stores each user-entered number in self.grid
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
@@ -245,6 +246,7 @@ class GraphicalInterface:
 
                     if value: # If the cell is filled in
                         self.grid[ypos][xpos] = int(value)
+                        self.count += 1 # Adds 1 to the count value
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
 
@@ -259,6 +261,9 @@ class GraphicalInterface:
         [0, 0, 4, 1, 5, 0, 6, 0, 9],
         [9, 0, 0, 8, 7, 4, 2, 1, 0]
         ]
+
+        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+        self.canvas.delete('cursor') # Deletes the previous cursor
 
         self.__update_grid(self.grid) # Displays the grid
         threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread                
@@ -277,6 +282,9 @@ class GraphicalInterface:
         self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
 
         self.solutions = [] # Resets all the found solutions
+
+        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+        self.canvas.delete('cursor') # Deletes the previous cursor
 
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily enables widget
         self.solved_grids_display.delete(1.0, 'end') # Clears the entire solved solutions text widget
@@ -367,7 +375,7 @@ class GraphicalInterface:
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily activates the text widget
         self.solved_grids_display.delete(1.0, 'end') # Clears entire widget
 
-        self.solved_grids_display.insert('end', f'<<< {len(self.solutions)} Solution(s) Found >>>\n', 'header') # Adds header with header tag
+        self.solved_grids_display.insert('end', f'___ {len(self.solutions)} Solution(s) Found ___\n', 'header') # Adds header with header tag
 
         for grid in self.solutions: # For each solution
             self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
