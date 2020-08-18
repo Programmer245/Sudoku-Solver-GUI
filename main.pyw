@@ -3,6 +3,7 @@
 import tkinter
 from tkinter import ttk # Used for scrollbar
 from tkinter import messagebox # Used for message boxes 
+from tkinter import filedialog # Used for opening the file dialog box
 
 import copy # Used for creating copies of variables instead of instances
 
@@ -34,8 +35,10 @@ class GraphicalInterface:
         ]
 
         self.solutions = [] # Stores all solved grids
-        self.running = False # Sets the flag indicating whether the solver thread is running
-        self.interrupted = False # Sets the flag indicating whether the solve thread was manually interrupted
+
+        self.running = False # Sets the flag indicating whether the solver thread is running; needed for solver thread 
+        self.modify = True # Sets the flag indicating whether the grid is allowed to be modified
+        self.autosave = tkinter.IntVar() # Sets value indicating whether to save grid automatically (1 or 0)
 
         self.margin = 20 # Margin size of the sudoku board
         self.side = 40 # Side length of each square in the grid
@@ -57,26 +60,27 @@ class GraphicalInterface:
 
         ### MENUBAR 
 
-        menubar = tkinter.Menu(root) # Creates the menubar object 
-        root.config(menu=menubar) # Sets menubar object in root
+        self.menubar = tkinter.Menu(root) # Creates the menubar object 
+        root.config(menu=self.menubar) # Sets menubar object in root
 
-        file_submenu = tkinter.Menu(menubar, tearoff=0) # Creates file submenu
-        menubar.add_cascade(label='File', menu=file_submenu) # Places submenu inside menubar
-        file_submenu.add_command(label='Load...', command=self.__load) # Adds load button
-        file_submenu.add_separator() # Adds a line separator
-        file_submenu.add_checkbutton(label='Auto Save') # Adds a checkbutton for autosave functionality
-        file_submenu.add_separator() # Adds a line separator
-        file_submenu.add_command(label='Exit', command=exit) # Adds exit button
+        self.file_submenu = tkinter.Menu(self.menubar, tearoff=0) # Creates file submenu
+        self.menubar.add_cascade(label='File', menu=self.file_submenu) # Places submenu inside menubar
+        self.file_submenu.add_command(label='Load...', command=self.__load) # Adds load button
+        self.file_submenu.add_separator() # Adds a line separator
+        self.file_submenu.add_command(label='Save As...', state=tkinter.DISABLED, command=self.__save) # Adds save button which is disabled at the start
+        self.file_submenu.add_checkbutton(label='Auto Save', variable=self.autosave) # Adds a checkbutton for autosave functionality binded to self.autosave
+        self.file_submenu.add_separator() # Adds a line separator
+        self.file_submenu.add_command(label='Exit', command=exit) # Adds exit button
 
-        option_submenu = tkinter.Menu(menubar, tearoff=0) # Creates options submenu 
-        menubar.add_cascade(label='Options', menu=option_submenu) # Places the submenu inside the menubar
-        option_submenu.add_command(label='Configure...', command=self.__configure) # Adds configure button
+        self.option_submenu = tkinter.Menu(self.menubar, tearoff=0) # Creates options submenu 
+        self.menubar.add_cascade(label='Options', menu=self.option_submenu) # Places the submenu inside the menubar
+        self.option_submenu.add_command(label='Configure...', command=self.__configure) # Adds configure button
 
-        help_submenu = tkinter.Menu(menubar, tearoff=0) # Creates help submenu 
-        menubar.add_cascade(label='Help', menu=help_submenu) # Places the submenu inside the menubar
-        help_submenu.add_command(label='About Sudoku Solver', command=self.__about) # About button that opens README.md
-        help_submenu.add_separator() # Adds a line separator
-        help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.md
+        self.help_submenu = tkinter.Menu(self.menubar, tearoff=0) # Creates help submenu 
+        self.menubar.add_cascade(label='Help', menu=self.help_submenu) # Places the submenu inside the menubar
+        self.help_submenu.add_command(label='About Sudoku Solver', command=self.__about) # About button that opens README.md
+        self.help_submenu.add_separator() # Adds a line separator
+        self.help_submenu.add_command(label='Licence', command=self.__licence) # Licence button that opens LICENCE.md
 
         ### SCROLLBAR & STATUS BAR
 
@@ -163,7 +167,7 @@ class GraphicalInterface:
         x, y = event.x, event.y # Finds the x and y coordinate of the click
         print(f'Clicked at {x},{y}') # DEBUGGING PURPOSES
 
-        if not self.running and not self.interrupted: # Box selection functionality only available if program is NOT running and has NOT been manually interrupted
+        if self.modify: # Box selection functionality only available if modify variable is on
             if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
                 row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
                 print(f'Clicked at row {row}, column {col}') # DEBUGGING PURPOSES
@@ -260,11 +264,12 @@ class GraphicalInterface:
     def __reset(self):
         'Resets the graphical user interface'
 
+        self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is reset
         self.start_btn.config(state=tkinter.NORMAL) # Renables the start button
         self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
 
         self.solutions = [] # Resets all the found solutions
-        self.interrupted = False # Resets the interrupted flag to enable grid modification again
+        self.modify = True # Renables the modify flag to enable grid modification
 
         self.row, self.col = None, None # Resets the currently selected cell row and colunm
         self.canvas.delete('cursor') # Deletes the previous cursor
@@ -283,14 +288,22 @@ class GraphicalInterface:
         'Main solver thread'
 
         self.running = True # Allows the solver thread to run
+        self.modify = False # Grid modification feature must be disabled when grid is solving
+
+        self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is running
         self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
         self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
+        self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset button until execution is finished
         self.status_bar.config(text='Executing solve.') # Updates status bar
 
         self.loading_bar.start() # Starts the loading bar animation
 
-        self.interrupted = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
+        self.interrupted = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted); used for displaying or auto saving
 
+        self.running = False # Program is not running anymore
+
+        if self.solutions: # If at least 1 solution has been found
+            self.file_submenu.entryconfig(2, state=tkinter.NORMAL) # Renables the save as functionality 
         self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
         self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
 
@@ -299,8 +312,11 @@ class GraphicalInterface:
         print(f'Exit value: {self.interrupted}') # DEBUGGING PURPOSES
 
         if not self.interrupted: # Displays all solutions only if it was not interrupted
-            self.__display_solutions() 
+            self.__display_solutions() # Prints out solutions
             self.status_bar.config(text='Execution successful. Please reset grid') # Updates status bar
+
+            if self.autosave.get(): # If autosave is on
+                self.__save() # Save the results
         else: # If program was interrupted
             self.status_bar.config(text='Execution interrupted. Please reset grid') # Updates status bar
 
@@ -311,7 +327,7 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
-                        time.sleep(0.1) ######################################################################################################################
+                        # time.sleep(0.1) ######################################################################################################################
                         if not self.running: # Not running to run
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
@@ -425,6 +441,11 @@ class GraphicalInterface:
         'Loads in a file containing an unsolved grid'
 
         print('Opened file')
+
+    def __save(self):
+        'Saves all found solutions in a chosen text file'
+
+        print('File saved')
     
     def __configure(self):
         'Opens settings configuration window'
