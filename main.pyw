@@ -34,7 +34,8 @@ class GraphicalInterface:
         ]
 
         self.solutions = [] # Stores all solved grids
-        self.allowed = False # Sets the flag indicating whether the solver thread is allowed to run
+        self.running = False # Sets the flag indicating whether the solver thread is running
+        self.interrupted = False # Sets the flag indicating whether the solve thread was manually interrupted
 
         self.margin = 20 # Margin size of the sudoku board
         self.side = 40 # Side length of each square in the grid
@@ -151,12 +152,12 @@ class GraphicalInterface:
     def __cell_clicked(self, event):
         '''Handles mouse clicks
 
-        Takes event as argument'''
+        Takes event as argument. Creates indicator only if solver thread is running or program has not been interrupted'''
 
         x, y = event.x, event.y # Finds the x and y coordinate of the click
         print(f'Clicked at {x},{y}') # DEBUGGING PURPOSES
 
-        if not self.allowed: # Box selection functionality only available if program is NOT running
+        if not self.running and not self.interrupted: # Box selection functionality only available if program is NOT running and has NOT been manually interrupted
             if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
                 row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
                 print(f'Clicked at row {row}, column {col}') # DEBUGGING PURPOSES
@@ -195,31 +196,6 @@ class GraphicalInterface:
             self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
 
     ### START/STOP METHODS
-
-    def __solver_thread(self):
-        'Main solver thread'
-
-        self.allowed = True # Allows the solver thread to run
-        self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
-        self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
-        self.status_bar.config(text='Executing solve.') # Updates status bar
-
-        self.loading_bar.start() # Starts the loading bar animation
-
-        exit_value = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
-
-        self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
-        self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
-
-        self.loading_bar.stop() # Stops the loading bar animation
-
-        print(f'Exit value: {exit_value}') # DEBUGGING PURPOSES
-
-        if not exit_value: # Displays all solutions only if it was not interrupted
-            self.__display_solutions() 
-            self.status_bar.config(text='Execution successful.') # Updates status bar
-        else: # If program was interrupted
-            self.status_bar.config(text='Execution interrupted.') # Updates status bar
 
     def __start(self):
         'Begins the dynamic solving of the grid'
@@ -271,7 +247,7 @@ class GraphicalInterface:
     def __stop(self):
         'Interrupts the dynamic solving of the grid'
 
-        self.allowed = False # Disallowes the solver thread from running
+        self.running = False # Disallowes the solver thread from running
 
         # Missing additional logic
 
@@ -282,6 +258,7 @@ class GraphicalInterface:
         self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
 
         self.solutions = [] # Resets all the found solutions
+        self.interrupted = False # Resets the interrupted flag to enable grid modification again
 
         self.row, self.col = None, None # Resets the currently selected cell row and colunm
         self.canvas.delete('cursor') # Deletes the previous cursor
@@ -296,6 +273,31 @@ class GraphicalInterface:
 
     ### LOGIC HANDLING METHODS
 
+    def __solver_thread(self):
+        'Main solver thread'
+
+        self.running = True # Allows the solver thread to run
+        self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
+        self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
+        self.status_bar.config(text='Executing solve.') # Updates status bar
+
+        self.loading_bar.start() # Starts the loading bar animation
+
+        self.interrupted = self.__solve_grid() # Solves the grid and returns True (was interrupted) or False (was not interrupted) as the exit code
+
+        self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
+        self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
+
+        self.loading_bar.stop() # Stops the loading bar animation
+
+        print(f'Exit value: {self.interrupted}') # DEBUGGING PURPOSES
+
+        if not self.interrupted: # Displays all solutions only if it was not interrupted
+            self.__display_solutions() 
+            self.status_bar.config(text='Execution successful. Please reset grid') # Updates status bar
+        else: # If program was interrupted
+            self.status_bar.config(text='Execution interrupted. Please reset grid') # Updates status bar
+
     def __solve_grid(self):
         'Solves the grid in self.grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
         
@@ -304,7 +306,7 @@ class GraphicalInterface:
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
                         time.sleep(0.1) ######################################################################################################################
-                        if not self.allowed: # Not allowed to run
+                        if not self.running: # Not running to run
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
