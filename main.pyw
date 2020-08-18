@@ -60,11 +60,17 @@ class GraphicalInterface:
         menubar = tkinter.Menu(root) # Creates the menubar object 
         root.config(menu=menubar) # Sets menubar object in root
 
+        file_submenu = tkinter.Menu(menubar, tearoff=0) # Creates file submenu
+        menubar.add_cascade(label='File', menu=file_submenu) # Places submenu inside menubar
+        file_submenu.add_command(label='Load...', command=self.__load) # Adds load button
+        file_submenu.add_separator() # Adds a line separator
+        file_submenu.add_checkbutton(label='Auto Save') # Adds a checkbutton for autosave functionality
+        file_submenu.add_separator() # Adds a line separator
+        file_submenu.add_command(label='Exit', command=exit) # Adds exit button
+
         option_submenu = tkinter.Menu(menubar, tearoff=0) # Creates options submenu 
         menubar.add_cascade(label='Options', menu=option_submenu) # Places the submenu inside the menubar
-        option_submenu.add_checkbutton(label='Auto Save') # Adds a checkbutton to the option submenu
-        option_submenu.add_separator() # Adds a line separator
-        option_submenu.add_command(label='Exit', command=exit) # Adds exit button
+        option_submenu.add_command(label='Configure...', command=self.__configure) # Adds configure button
 
         help_submenu = tkinter.Menu(menubar, tearoff=0) # Creates help submenu 
         menubar.add_cascade(label='Help', menu=help_submenu) # Places the submenu inside the menubar
@@ -415,14 +421,26 @@ class GraphicalInterface:
 
     ### MENUBAR SETTINGS METHODS
 
-    def __about(self):
-        'Opens the README for the program'
+    def __load(self):
+        'Loads in a file containing an unsolved grid'
 
+        print('Opened file')
+    
+    def __configure(self):
+        'Opens settings configuration window'
+
+        print('Configuration window opened')
+
+    def __about(self):
+        'Opens README.md'
+
+        print('Opened README.md')
         os.system('README.md') # Opens README.md with an adequate program like notepad
 
     def __licence(self):
-        'Opens the LICENCE for the program'
+        'Opens the LICENCE.md'
 
+        print('Opened LICENCE.md')
         os.system('LICENCE.md') # Opens README.md with an adequate program like notepad
 
 root = tkinter.Tk() # Defines the main window
