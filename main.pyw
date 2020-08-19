@@ -124,8 +124,8 @@ class GraphicalInterface:
 
         self.scrollbar.config(command=self.solved_grids_display.yview) # Configures the scrolling of the text widget
 
-        self.solved_grids_display.tag_configure('header', font=('Helvetica', 10), justify=tkinter.CENTER) # Configures the header font properties of the text widget
-        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 10), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
+        self.solved_grids_display.tag_configure('header', font=('Helvetica', 10, 'bold'), justify=tkinter.CENTER) # Configures the header font properties of the text widget
+        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 10, 'bold'), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
 
         ### BINDING MOUSE AND KEYBOARD EVENTS
 
@@ -259,8 +259,6 @@ class GraphicalInterface:
 
         self.running = False # Disallowes the solver thread from running
 
-        # Missing additional logic
-
     def __reset(self):
         'Resets the graphical user interface'
 
@@ -313,12 +311,12 @@ class GraphicalInterface:
 
         if not self.interrupted: # Displays all solutions only if it was not interrupted
             self.__display_solutions() # Prints out solutions
-            self.status_bar.config(text='Execution successful. Please reset grid') # Updates status bar
+            self.status_bar.config(text='Execution successful. Please reset grid.') # Updates status bar
 
             if self.autosave.get(): # If autosave is on
                 self.__save() # Save the results
         else: # If program was interrupted
-            self.status_bar.config(text='Execution interrupted. Please reset grid') # Updates status bar
+            self.status_bar.config(text='Execution interrupted. Please reset grid.') # Updates status bar
 
     def __solve_grid(self):
         'Solves the grid in self.grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
@@ -399,7 +397,7 @@ class GraphicalInterface:
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily activates the text widget
         self.solved_grids_display.delete(1.0, 'end') # Clears entire widget
 
-        self.solved_grids_display.insert('end', f'___ {len(self.solutions)} Solution(s) Found ___\n', 'header') # Adds header with header tag
+        self.solved_grids_display.insert('end', f'{len(self.solutions)} Solution(s) Found\n', 'header') # Adds header with header tag
 
         for grid in self.solutions: # For each solution
             self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
@@ -428,12 +426,21 @@ class GraphicalInterface:
     def __display_solutions(self):
         'Formats and displays all found solutions on the terminal'
 
-        print(f'\n-----------------------{len(self.solutions)} Solutions Found-----------------------')
+        print(self.__solutions_formatter()) # Prints out the solutions
+
+    def __solutions_formatter(self):
+        '''Manipulates the solutions into a printable format
         
-        for grid in self.solutions: # Prints out each solution
-            print('')
-            for row in grid:
-                print(row)
+        Returns formatted string'''
+
+        formatted = f'-----------------------{len(self.solutions)} Solutions Found-----------------------' # Header
+        
+        for grid in self.solutions: # For each solution
+            formatted += '\n' # Adds empty line between each solution
+            for row in grid: # For each row in the grid
+                formatted += f'\n{row}' 
+
+        return formatted # Returns formatted solutions as a string
 
     ### MENUBAR SETTINGS METHODS
 
@@ -443,9 +450,20 @@ class GraphicalInterface:
         print('Opened file')
 
     def __save(self):
-        'Saves all found solutions in a chosen text file'
+        'Saves all found solutions in chosen text file'
 
         print('File saved')
+
+        try:
+            filename = filedialog.askopenfilename(title='Select Save File', filetypes=(('Text Files', '*.txt'),)) # Prompts user to select a save file (.txt)
+            with open(filename, 'w') as f: # Opens the chosen file
+                f.write(self.__solutions_formatter()) # Writes solutions into file
+        except Exception as e:
+            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occured: {e}') # Shows error
+            self.status_bar.config(text=f'An error occurred. Save aborted.') # Updates status bar
+        else:
+            messagebox.showinfo(title='File saved successfully', message=f"Solutions have been successfully saved in '{filename}'") # Shows successful save info
+            self.status_bar.config(text=f'Save successful.') # Updates status bar
     
     def __configure(self):
         'Opens settings configuration window'
