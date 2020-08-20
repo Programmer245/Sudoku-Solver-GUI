@@ -8,10 +8,10 @@ from tkinter import filedialog # Used for opening the file dialog box
 import copy # Used for creating copies of variables instead of instances
 
 import threading # Multithreading module
-
-import os # Module for opening files
-
 import time # Time module for delays
+
+import os # Module for opening system files
+import json # Module for opening json files
 
 # To retrieve the text from an item with object ID I on a canvas C, call C.itemcget(I, 'text').
 # To replace the text in an item with object ID I on a canvas C with the text from a string S, call C.itemconfigure(I, text=S). 
@@ -447,7 +447,21 @@ class GraphicalInterface:
     def __load(self):
         'Loads in a file containing an unsolved grid'
 
-        print('Opened file')
+        print('Loaded file')
+
+        try:
+            filename = filedialog.askopenfilename(title='Select Load File', filetypes=(('Text Files', '*.json'),)) # Prompts user to select a save file (.txt)
+            with open(filename, 'r') as f: # Opens the chosen file as read
+                loaded_grid = json.load(f) # Deserializes json file contents
+                print(type(loaded_grid))
+
+                self.grid = loading_grid # Sets the grid as the loaded grid
+        except Exception as e:
+            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occured: {e}') # Shows error
+            self.status_bar.config(text=f'An error occurred. Load aborted.') # Updates status bar
+        else:
+            messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful save info
+            self.status_bar.config(text=f'Load successful.') # Updates status bar
 
     def __save(self):
         'Saves all found solutions in chosen text file'
