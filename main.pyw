@@ -445,23 +445,43 @@ class GraphicalInterface:
     ### MENUBAR SETTINGS METHODS
 
     def __load(self):
-        'Loads in a file containing an unsolved grid'
+        'Loads in a grid from a chosen json file'
 
         print('Loaded file')
 
         try:
-            filename = filedialog.askopenfilename(title='Select Load File', filetypes=(('Text Files', '*.json'),)) # Prompts user to select a save file (.txt)
+            filename = filedialog.askopenfilename(title='Select Load File', filetypes=(('Text Files', '*.json'),)) # Prompts user to select a load file (.json)
             with open(filename, 'r') as f: # Opens the chosen file as read
                 loaded_grid = json.load(f) # Deserializes json file contents
-                print(type(loaded_grid))
 
-                self.grid = loading_grid # Sets the grid as the loaded grid
+                if self.__validate_grid(loaded_grid): # If the grid is valid
+                    # MISSING DOCUMENTATION
+                else: # If grid is invalid
+                    raise Exception('Incorrect grid format') # Raises exception
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occured: {e}') # Shows error
             self.status_bar.config(text=f'An error occurred. Load aborted.') # Updates status bar
         else:
-            messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful save info
+            messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful load info
             self.status_bar.config(text=f'Load successful.') # Updates status bar
+
+    def __validate_grid(self, grid):
+        '''Validates a loaded grid; returns True or False if grid is valid
+        
+        Takes in loaded grid'''
+
+        if not isinstance(grid, list): # Checks that the loaded grid is of type grid
+            return False # Grid is not valid
+        for row in grid: # For each row in the loaded grid
+            print(row)
+            if len(row) != 9: # If exactly 9 items are not present in each row
+                return False # Grid is not valid
+            for position in row: # For each number in the grid
+                print(position)
+                if position not in range(0, 10): # Number must be in range [0,10)
+                    return False # Grid is invalid
+        
+        return True # Grid is valid
 
     def __save(self):
         'Saves all found solutions in chosen text file'
