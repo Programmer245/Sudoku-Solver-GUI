@@ -22,19 +22,18 @@ class GraphicalInterface:
     def __init__(self, parent): # Parent is the main window
         self.parent = parent # Parent root frame
 
-        self.empty_grid = [ # Empty grid used to reset program
-        [0, 0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-
         self.solutions = [] # Stores all solved grids
+        self.empty_grid = [ # Empty grid used for resetting
+            [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
 
         self.running = False # Sets the flag indicating whether the solver thread is running; needed for solver thread 
         self.modify = True # Sets the flag indicating whether the grid is allowed to be modified
@@ -56,7 +55,7 @@ class GraphicalInterface:
     ### PACKING WIDGETS
 
     def __widgets(self):
-        'Initiates the widgets in the grid'
+        'Initiates the widgets'
 
         ### MENUBAR 
 
@@ -135,7 +134,7 @@ class GraphicalInterface:
         self.parent.bind('<Key>', self.__key_pressed) # Binds key pressed to entering a key; must be binded to root
 
     def __draw_grid(self):
-        'Draws the Suduku Grid'
+        'Draws the Suduku grid'
 
         for i in range(10):
             if i % 3 == 0: # Every 3 lines switches to black
@@ -162,12 +161,12 @@ class GraphicalInterface:
     def __cell_clicked(self, event):
         '''Handles mouse clicks
 
-        Takes event as argument. Creates indicator only if solver thread is running or program has not been interrupted'''
+        Takes event as argument. Creates indicator only if self.modify is True'''
 
         x, y = event.x, event.y # Finds the x and y coordinate of the click
         print(f'Clicked at {x},{y}') # DEBUGGING PURPOSES
 
-        if self.modify: # Box selection functionality only available if modify variable is on
+        if self.modify: # Box selection functionality only available if modify variable is True
             if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
                 row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
                 print(f'Clicked at row {row}, column {col}') # DEBUGGING PURPOSES
@@ -197,7 +196,7 @@ class GraphicalInterface:
             self.canvas.create_rectangle(x0, y0, x1, y1, tags='cursor', outline='green', width=3) # Creates the cursor
 
     def __key_pressed(self, event):
-        '''Handles keyboard key presses
+        '''Handles keyboard key presse
         
         Takes event as argument'''
 
@@ -205,24 +204,23 @@ class GraphicalInterface:
             self.__display_number(self.row, self.col, event.char, color='red')
             self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
 
-    ### START/STOP METHODS
+    ### START/STOP/RESET METHODS
 
     def __start(self):
         'Begins the dynamic solving of the grid'
 
-        self.grid = [ # Grid representing the 8x8 sudoku grid which is initially empty
-        [0, 0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-        self.count = 0 # Stores the number of clues that have been entered
-
+        self.grid = [ # Makes a new empty 8x8 grid which will store the user-entered values
+            [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]
+    
         # Stores each user-entered number in self.grid
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
             for xpos, _ in enumerate(row): # Goes through each position in the row
@@ -232,62 +230,24 @@ class GraphicalInterface:
 
                     if value: # If the cell is filled in
                         self.grid[ypos][xpos] = int(value)
-                        self.count += 1 # Adds 1 to the count value
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
-
-        self.grid = [ # A temporary grid used for debugging purposes
-        [1, 0, 6, 0, 0, 2, 0, 0, 0], 
-        [0, 5, 0, 0, 0, 6, 0, 9, 1],
-        [0, 0, 9, 5, 0, 1, 4, 6, 2],
-        [0, 3, 7, 9, 0, 5, 0, 0, 0],
-        [5, 8, 1, 0, 2, 7, 9, 0, 0],
-        [0, 0, 0, 4, 0, 8, 1, 5, 7],
-        [0, 0, 0, 2, 6, 0, 5, 4, 0],
-        [0, 0, 4, 1, 5, 0, 6, 0, 9],
-        [9, 0, 0, 8, 7, 4, 2, 1, 0]
-        ]
+        
+        print(self.grid) ####################################################################################################################
 
         self.row, self.col = None, None # Resets the currently selected cell row and colunm
         self.canvas.delete('cursor') # Deletes the previous cursor
 
         self.__update_grid(self.grid) # Displays the grid
-        threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread                
-
-    def __stop(self):
-        'Interrupts the dynamic solving of the grid'
-
-        self.running = False # Disallowes the solver thread from running
-
-    def __reset(self):
-        'Resets the graphical user interface'
-
-        self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is reset
-        self.start_btn.config(state=tkinter.NORMAL) # Renables the start button
-        self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
-
-        self.solutions = [] # Resets all the found solutions
-        self.modify = True # Renables the modify flag to enable grid modification
-
-        self.row, self.col = None, None # Resets the currently selected cell row and colunm
-        self.canvas.delete('cursor') # Deletes the previous cursor
-
-        self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily enables widget
-        self.solved_grids_display.delete(1.0, 'end') # Clears the entire solved solutions text widget
-        self.solved_grids_display.config(state=tkinter.DISABLED) # Disables widget again
-
-        self.__update_grid(self.empty_grid) # Displays the empty grid
-
-        self.status_bar.config(text='Reset complete.') # Updates the status bar
-
-    ### LOGIC HANDLING METHODS
+        threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread   
 
     def __solver_thread(self):
-        'Main solver thread'
+        'Main solver thread that solves self.grid'
 
         self.running = True # Allows the solver thread to run
         self.modify = False # Grid modification feature must be disabled when grid is solving
 
+        self.file_submenu.entryconfig(0, state=tkinter.DISABLED) # Disables the load functionality when program is running
         self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is running
         self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
         self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
@@ -316,16 +276,48 @@ class GraphicalInterface:
             if self.autosave.get(): # If autosave is on
                 self.__save() # Save the results
         else: # If program was interrupted
-            self.status_bar.config(text='Execution interrupted. Please reset grid.') # Updates status bar
+            self.status_bar.config(text='Execution interrupted. Please reset grid.') # Updates status bar             
+
+    def __stop(self):
+        'Interrupts the dynamic solving of the grid'
+
+        self.running = False # Disallowes the solver thread from running
+
+    def __reset(self):
+        'Resets the graphical user interface to its initial state'
+
+        self.file_submenu.entryconfig(0, state=tkinter.NORMAL) # Enables the load functionality when program is reset
+        self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is reset
+        self.start_btn.config(state=tkinter.NORMAL) # Renables the start button
+        self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
+
+        self.solutions = [] # Resets all the found solutions
+        self.loaded_grid = None # Forgets the loaded grid
+        self.modify = True # Renables the modify flag to enable grid modification
+
+        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+        self.canvas.delete('cursor') # Deletes the previous cursor
+
+        self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily enables widget
+        self.solved_grids_display.delete(1.0, 'end') # Clears the entire solved solutions text widget
+        self.solved_grids_display.config(state=tkinter.DISABLED) # Disables widget again
+
+        self.__update_grid(self.empty_grid) # Displays the empty grid
+
+        self.status_bar.config(text='Reset complete.') # Updates the status bar
+
+    ### LOGIC HANDLING METHODS
 
     def __solve_grid(self):
-        'Solves the grid in self.grid and stores each solution as a list in solutions list. Displays each iteration of the solving algorithm'
+        '''Solves the grid in self.grid and stores each solution as a list in self.solutions; displays each iteration of the solving algorithm
+        
+        Returns True if process was interrupted or False if process was not interrupted'''
         
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
-                        # time.sleep(0.1) ######################################################################################################################
+                        time.sleep(0.1) ######################################################################################################################
                         if not self.running: # Not running to run
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
@@ -348,7 +340,7 @@ class GraphicalInterface:
     def __possible(self, x, y, n):
         '''Returns True or False if a number can fit in a specific position in the grid 
 
-        Takes in x position, y position, and value of a possible number'''
+        Takes x position, y position, and value of a possible number as arguments'''
 
         # Checks row
         for position in self.grid[y]:
@@ -379,10 +371,30 @@ class GraphicalInterface:
 
         return True # No doubles detected
 
+    def __validate_grid(self, grid):
+        '''Validates a grid by making sure only integer values between 0 to 9 are entered; returns True or False if grid is valid
+        
+        Takes loaded grid as argument'''
+
+        if not isinstance(grid, list): # Checks that the loaded grid is of type grid
+            return False # Grid is not valid
+        for row in grid: # For each row in the loaded grid
+            print(row)
+            if len(row) != 9: # If exactly 9 items are not present in each row
+                return False # Grid is not valid
+            for position in row: # For each number in the grid
+                print(position)
+                if position not in range(0, 10): # Number must be in range [0,10)
+                    return False # Grid is invalid
+        
+        return True # Grid is valid
+
     ### DISPLAYER METHODS
 
     def __update_grid(self, grid):
-        'Loads a particular grid'
+        '''Displays a grid in the Sudoku canvas
+        
+        Takes grid as argument'''
 
         for ypos, row in enumerate(grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
@@ -392,7 +404,7 @@ class GraphicalInterface:
                     self.__display_number(ypos, xpos, None) # Empties square
                     
     def __update_solved_grids(self):
-        'Updates solved grids text widget by displaying all the found solutions from self.solutions every time it is called'
+        'Updates solved grids text widget by displaying all the found solutions from self.solutions'
 
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily activates the text widget
         self.solved_grids_display.delete(1.0, 'end') # Clears entire widget
@@ -409,9 +421,9 @@ class GraphicalInterface:
         self.solved_grids_display.config(state=tkinter.DISABLED) # Deactivates the text widget
 
     def __display_number(self, row, column, n, color='black'): 
-        '''Displays a given number on the grid
+        '''Displays a given digit on the Sudoku canvas
         
-        Takes in the row number, column number, value of the number to display, and optional font color'''
+        Takes the row number, column number, value of the number to display, and optional font color as arguments'''
 
         x = round(self.margin + self.side*column + self.side/2) # Finds x and y coords of the centre of the selected square
         y = round(self.margin + self.side*row + self.side/2) # Coordinates are rounded to nearest integer
@@ -424,16 +436,16 @@ class GraphicalInterface:
         # tags argument should be a tuple or string
 
     def __display_solutions(self):
-        'Formats and displays all found solutions on the terminal'
+        'Formats and displays all found solutions in the terminal'
 
         print(self.__solutions_formatter()) # Prints out the solutions
 
     def __solutions_formatter(self):
-        '''Manipulates the solutions into a printable format
+        '''Manipulates the solutions in self.solutions into a printable format
         
         Returns formatted string'''
 
-        formatted = f'-----------------------{len(self.solutions)} Solutions Found-----------------------' # Header
+        formatted = f'-----------------------{len(self.solutions)} Solutions Found-----------------------' # String storing formatted solutions
         
         for grid in self.solutions: # For each solution
             formatted += '\n' # Adds empty line between each solution
@@ -445,7 +457,7 @@ class GraphicalInterface:
     ### MENUBAR SETTINGS METHODS
 
     def __load(self):
-        'Loads in a grid from a chosen json file'
+        'Loads a grid from a chosen json file'
 
         print('Loaded file')
 
@@ -455,7 +467,7 @@ class GraphicalInterface:
                 loaded_grid = json.load(f) # Deserializes json file contents
 
                 if self.__validate_grid(loaded_grid): # If the grid is valid
-                    # MISSING DOCUMENTATION
+                    self.__update_grid(loaded_grid) # Displays the grid
                 else: # If grid is invalid
                     raise Exception('Incorrect grid format') # Raises exception
         except Exception as e:
@@ -464,24 +476,6 @@ class GraphicalInterface:
         else:
             messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful load info
             self.status_bar.config(text=f'Load successful.') # Updates status bar
-
-    def __validate_grid(self, grid):
-        '''Validates a loaded grid; returns True or False if grid is valid
-        
-        Takes in loaded grid'''
-
-        if not isinstance(grid, list): # Checks that the loaded grid is of type grid
-            return False # Grid is not valid
-        for row in grid: # For each row in the loaded grid
-            print(row)
-            if len(row) != 9: # If exactly 9 items are not present in each row
-                return False # Grid is not valid
-            for position in row: # For each number in the grid
-                print(position)
-                if position not in range(0, 10): # Number must be in range [0,10)
-                    return False # Grid is invalid
-        
-        return True # Grid is valid
 
     def __save(self):
         'Saves all found solutions in chosen text file'
