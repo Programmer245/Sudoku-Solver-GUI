@@ -200,9 +200,12 @@ class GraphicalInterface:
         
         Takes event as argument'''
 
-        if (self.row, self.col) != (None, None) and event.char.isnumeric(): # Checks that a square is selected and the entered key is a digit
-            self.__display_number(self.row, self.col, event.char, color='red')
-            self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
+        if (self.row, self.col) != (None, None): # Checks that a square is selected
+            if event.char.isnumeric(): # If entered key is a digit
+                self.__display_number(self.row, self.col, event.char, color='red') # Displays digit in canvas
+                self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
+            elif event.keysym == 'BackSpace': # If backspace is pressed
+                self.__display_number(self.row, self.col, None) # Resets the square
 
     ### START/STOP/RESET METHODS
 
@@ -372,13 +375,20 @@ class GraphicalInterface:
         return True # No doubles detected
 
     def __validate_grid(self, grid):
-        '''Validates a grid by making sure only integer values between 0 to 9 are entered; returns True or False if grid is valid
+        '''Validates the grid; returns True or False if grid is solvable
         
-        Takes loaded grid as argument'''
+        Takes grid as argument'''
 
-        if not isinstance(grid, list): # Checks that the loaded grid is of type grid
+        pass
+
+    def __validate_grid_format(self, grid): # Used for validating an imported grid
+        '''Validates the format of a grid by making sure only integer values between 0 to 9 are entered and that grid is of list type; returns True or False if grid format is valid
+        
+        Takes grid as argument'''
+
+        if not isinstance(grid, list): # Checks that the grid is of type grid
             return False # Grid is not valid
-        for row in grid: # For each row in the loaded grid
+        for row in grid: # For each row in the grid
             print(row)
             if len(row) != 9: # If exactly 9 items are not present in each row
                 return False # Grid is not valid
@@ -466,7 +476,7 @@ class GraphicalInterface:
             with open(filename, 'r') as f: # Opens the chosen file as read
                 loaded_grid = json.load(f) # Deserializes json file contents
 
-                if self.__validate_grid(loaded_grid): # If the grid is valid
+                if self.__validate_grid_format(loaded_grid): # If the grid is of valid format
                     self.__update_grid(loaded_grid) # Displays the grid
                 else: # If grid is invalid
                     raise Exception('Incorrect grid format') # Raises exception
