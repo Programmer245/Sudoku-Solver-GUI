@@ -134,7 +134,7 @@ class GraphicalInterface:
         self.parent.bind('<Key>', self.__key_pressed) # Binds key pressed to entering a key; must be binded to root
 
     def __draw_grid(self):
-        'Draws the Suduku grid'
+        'Draws the Sudoku grid'
 
         for i in range(10):
             if i % 3 == 0: # Every 3 lines switches to black
@@ -481,7 +481,7 @@ class GraphicalInterface:
                 else: # If grid is invalid
                     raise Exception('Incorrect grid format') # Raises exception
         except Exception as e:
-            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occured: {e}') # Shows error
+            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
             self.status_bar.config(text=f'An error occurred. Load aborted.') # Updates status bar
         else:
             messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful load info
@@ -497,7 +497,7 @@ class GraphicalInterface:
             with open(filename, 'w') as f: # Opens the chosen file
                 f.write(self.__solutions_formatter()) # Writes solutions into file
         except Exception as e:
-            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occured: {e}') # Shows error
+            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
             self.status_bar.config(text=f'An error occurred. Save aborted.') # Updates status bar
         else:
             messagebox.showinfo(title='File saved successfully', message=f"Solutions have been successfully saved in '{filename}'") # Shows successful save info
