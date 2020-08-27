@@ -238,6 +238,13 @@ class GraphicalInterface:
         
         print(self.grid) ####################################################################################################################
 
+        if self.__validate_selected_grid():
+            pass
+        else:
+            pass
+
+        exit()
+
         self.row, self.col = None, None # Resets the currently selected cell row and colunm
         self.canvas.delete('cursor') # Deletes the previous cursor
 
@@ -323,7 +330,7 @@ class GraphicalInterface:
                         time.sleep(0.1) ######################################################################################################################
                         if not self.running: # Not running to run
                             return True # Returns True; it was interrupted
-                        if self.__possible(xpos, ypos, num): # Check if the number is a possible
+                        if self.__possible(xpos, ypos, num, self.grid): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
                             self.__display_number(ypos, xpos, num)
 
@@ -341,7 +348,7 @@ class GraphicalInterface:
         self.__update_solved_grids() # Updates the solved solutions text widget
     
     def __possible(self, x, y, n):
-        '''Returns True or False if a number can fit in a specific position in the grid 
+        '''Returns True or False if a number can fit in a specific position in self.grid
 
         Takes x position, y position, and value of a possible number as arguments'''
 
@@ -374,15 +381,29 @@ class GraphicalInterface:
 
         return True # No doubles detected
 
-    def __validate_grid(self, grid):
-        '''Validates the grid; returns True or False if grid is solvable
+    ### VALIDATION METHODS
+
+    def __validate_selected_grid(self):
+        'Validates self.grid by making sure the value placement is correct and that at least 17 values have been entered; returns True or False if grid is valid'
+
+        count = 0 # Stores the valid grid clue count
+        for ypos, row in enumerate(self.grid): # Goes through each row in the grid
+            for xpos, position in enumerate(row): # Goes through each position in the row
+                if position: # If the number is not 0
+                    if not self.__possible(xpos, ypos, position): # If number cannot be placed in that position
+                        print('Invalid number')
+                        return False # Grid is invalid
+                    count += 1 # Number is valid
         
-        Takes grid as argument'''
+        if count < 17: # If there are less than 17 clues
+            print('Less than 17 clues')
+            return False # Grid is invalid
+        
+        print('Grid is valid')
+        return True # Grid is valid
 
-        pass
-
-    def __validate_grid_format(self, grid): # Used for validating an imported grid
-        '''Validates the format of a grid by making sure only integer values between 0 to 9 are entered and that grid is of list type; returns True or False if grid format is valid
+    def __validate_loaded_grid(self, grid): # Used for validating an imported grid
+        '''Validates the format of a LOADED grid by making sure only integer values between 0 to 9 are entered and that grid is of list type; returns True or False if grid format is valid
         
         Takes grid as argument'''
 
@@ -476,7 +497,7 @@ class GraphicalInterface:
             with open(filename, 'r') as f: # Opens the chosen file as read
                 loaded_grid = json.load(f) # Deserializes json file contents
 
-                if self.__validate_grid_format(loaded_grid): # If the grid is of valid format
+                if self.__validate_loaded_grid(loaded_grid): # If the grid is of valid format
                     self.__update_grid(loaded_grid) # Displays the grid
                 else: # If grid is invalid
                     raise Exception('Incorrect grid format') # Raises exception
