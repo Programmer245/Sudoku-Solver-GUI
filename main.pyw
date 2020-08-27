@@ -212,6 +212,9 @@ class GraphicalInterface:
     def __start(self):
         'Begins the dynamic solving of the grid'
 
+        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+        self.canvas.delete('cursor') # Deletes the previous cursor
+
         self.grid = [ # Makes a new empty 8x8 grid which will store the user-entered values
             [0, 0, 0, 0, 0, 0, 0, 0, 0], 
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -238,15 +241,10 @@ class GraphicalInterface:
         
         print(self.grid) ####################################################################################################################
 
-        if self.__validate_selected_grid():
-            pass
+        if not self.__validate_selected_grid(): # If the grid is not valid
+            return None # Returns early
         else:
-            pass
-
-        exit()
-
-        self.row, self.col = None, None # Resets the currently selected cell row and colunm
-        self.canvas.delete('cursor') # Deletes the previous cursor
+            print('Grid is valid')
 
         self.__update_grid(self.grid) # Displays the grid
         threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread   
@@ -330,7 +328,7 @@ class GraphicalInterface:
                         time.sleep(0.1) ######################################################################################################################
                         if not self.running: # Not running to run
                             return True # Returns True; it was interrupted
-                        if self.__possible(xpos, ypos, num, self.grid): # Check if the number is a possible
+                        if self.__possible(xpos, ypos, num): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
                             self.__display_number(ypos, xpos, num)
 
@@ -390,9 +388,12 @@ class GraphicalInterface:
         for ypos, row in enumerate(self.grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position: # If the number is not 0
+                    self.grid[ypos][xpos] = 0 # Sets the number to 0 temporarily so that self.__possible works
                     if not self.__possible(xpos, ypos, position): # If number cannot be placed in that position
                         print('Invalid number')
+                        # Note that number is not reset in the grid if it is invalid. Grid must be reset
                         return False # Grid is invalid
+                    self.grid[ypos][xpos] = position # Resets number in the grid after using __possible method
                     count += 1 # Number is valid
         
         if count < 17: # If there are less than 17 clues
