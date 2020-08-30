@@ -238,16 +238,12 @@ class GraphicalInterface:
                         self.grid[ypos][xpos] = int(value)
                     else: # If the cell is empty
                         self.grid[ypos][xpos] = 0
-        
-        print(self.grid) ####################################################################################################################
 
-        if not self.__validate_selected_grid(): # If the grid is not valid
+        if not self.__validate_selected_grid(): # If the grid is not valid in format
             return None # Returns early
-        else:
-            print('Grid is valid')
-
-        self.__update_grid(self.grid) # Displays the grid
-        threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread   
+        else: # Grid is valid in format; GRID MAY NOT HAVE ANY SOLUTIONS
+            self.__update_grid(self.grid) # Displays the grid
+            threading.Thread(target=self.__solver_thread).start() # Initiates the solver thread   
 
     def __solver_thread(self):
         'Main solver thread that solves self.grid'
@@ -260,7 +256,7 @@ class GraphicalInterface:
         self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
         self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
         self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset button until execution is finished
-        self.status_bar.config(text='Executing solve.') # Updates status bar
+        self.status_bar.config(text='Executing solve.', fg='black') # Updates status bar
 
         self.loading_bar.start() # Starts the loading bar animation
 
@@ -270,6 +266,8 @@ class GraphicalInterface:
 
         if self.solutions: # If at least 1 solution has been found
             self.file_submenu.entryconfig(2, state=tkinter.NORMAL) # Renables the save as functionality 
+        else: # If no solutions have been found
+            self.__update_solved_grids() # Updates the solved solutions text widget
         self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
         self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
 
@@ -279,12 +277,12 @@ class GraphicalInterface:
 
         if not self.interrupted: # Displays all solutions only if it was not interrupted
             self.__display_solutions() # Prints out solutions
-            self.status_bar.config(text='Execution successful. Please reset grid.') # Updates status bar
+            self.status_bar.config(text='Execution successful. Please reset grid.', fg='black') # Updates status bar
 
-            if self.autosave.get(): # If autosave is on
+            if self.autosave.get() and self.solutions: # If autosave is on and at least 1 solution has been found
                 self.__save() # Save the results
         else: # If program was interrupted
-            self.status_bar.config(text='Execution interrupted. Please reset grid.') # Updates status bar             
+            self.status_bar.config(text='Execution interrupted. Please reset grid.', fg='black') # Updates status bar             
 
     def __stop(self):
         'Interrupts the dynamic solving of the grid'
@@ -312,7 +310,7 @@ class GraphicalInterface:
 
         self.__update_grid(self.empty_grid) # Displays the empty grid
 
-        self.status_bar.config(text='Reset complete.') # Updates the status bar
+        self.status_bar.config(text='Reset complete.', fg='black') # Updates the status bar
 
     ### LOGIC HANDLING METHODS
 
@@ -325,8 +323,8 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
-                        time.sleep(0.1) ######################################################################################################################
-                        if not self.running: # Not running to run
+                        # time.sleep(0.1) ######################################################################################################################
+                        if not self.running: # If it was interrupted
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
                             self.grid[ypos][xpos] = num # Puts possible number in empty space
@@ -390,17 +388,16 @@ class GraphicalInterface:
                 if position: # If the number is not 0
                     self.grid[ypos][xpos] = 0 # Sets the number to 0 temporarily so that self.__possible works
                     if not self.__possible(xpos, ypos, position): # If number cannot be placed in that position
-                        print('Invalid number')
                         # Note that number is not reset in the grid if it is invalid. Grid must be reset
+                        self.status_bar.config(text='Conflict in clue positioning. Invalid grid.', fg='darkred') # Updates status bar with dark red color
                         return False # Grid is invalid
                     self.grid[ypos][xpos] = position # Resets number in the grid after using __possible method
                     count += 1 # Number is valid
         
         if count < 17: # If there are less than 17 clues
-            print('Less than 17 clues')
+            self.status_bar.config(text=f'Please enter at least 17 clues. ({17-count} remaining)', fg='darkred') # Updates status bar with dark red color
             return False # Grid is invalid
         
-        print('Grid is valid')
         return True # Grid is valid
 
     def __validate_loaded_grid(self, grid): # Used for validating an imported grid
@@ -411,11 +408,9 @@ class GraphicalInterface:
         if not isinstance(grid, list): # Checks that the grid is of type grid
             return False # Grid is not valid
         for row in grid: # For each row in the grid
-            print(row)
             if len(row) != 9: # If exactly 9 items are not present in each row
                 return False # Grid is not valid
             for position in row: # For each number in the grid
-                print(position)
                 if position not in range(0, 10): # Number must be in range [0,10)
                     return False # Grid is invalid
         
@@ -491,39 +486,50 @@ class GraphicalInterface:
     def __load(self):
         'Loads a grid from a chosen json file'
 
-        print('Loaded file')
+        print('Loading file')
 
         try:
             filename = filedialog.askopenfilename(title='Select Load File', filetypes=(('Text Files', '*.json'),)) # Prompts user to select a load file (.json)
-            with open(filename, 'r') as f: # Opens the chosen file as read
-                loaded_grid = json.load(f) # Deserializes json file contents
+            if filename: # If a file has been chosen
+                with open(filename, 'r') as f: # Opens the chosen file as read
+                    loaded_grid = json.load(f) # Deserializes json file contents
 
-                if self.__validate_loaded_grid(loaded_grid): # If the grid is of valid format
-                    self.__update_grid(loaded_grid) # Displays the grid
-                else: # If grid is invalid
-                    raise Exception('Incorrect grid format') # Raises exception
+                    if self.__validate_loaded_grid(loaded_grid): # If the grid is of valid format
+                        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+                        self.canvas.delete('cursor') # Deletes the previous cursor
+
+                        self.__update_grid(loaded_grid) # Displays the grid
+                    else: # If grid is invalid
+                        raise Exception('Incorrect grid format') # Raises exception
+            # If program reaches this point, user has not chosen a file
+            print('Load aborted')
+            return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
-            self.status_bar.config(text=f'An error occurred. Load aborted.') # Updates status bar
+            self.status_bar.config(text=f'An error occurred. Load aborted.', fg='darkred') # Updates status bar
         else:
             messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful load info
-            self.status_bar.config(text=f'Load successful.') # Updates status bar
+            self.status_bar.config(text=f'Load successful.', fg='black') # Updates status bar
 
     def __save(self):
         'Saves all found solutions in chosen text file'
 
-        print('File saved')
+        print('Saving file')
 
         try:
             filename = filedialog.askopenfilename(title='Select Save File', filetypes=(('Text Files', '*.txt'),)) # Prompts user to select a save file (.txt)
-            with open(filename, 'w') as f: # Opens the chosen file
-                f.write(self.__solutions_formatter()) # Writes solutions into file
+            if filename: # If a file has been chosen
+                with open(filename, 'w') as f: # Opens the chosen file
+                    f.write(self.__solutions_formatter()) # Writes solutions into file
+            # If program reaches this point, user has not chosen a file
+            print('Save aborted')
+            return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
-            self.status_bar.config(text=f'An error occurred. Save aborted.') # Updates status bar
+            self.status_bar.config(text=f'An error occurred. Save aborted.', fg='darkred') # Updates status bar
         else:
             messagebox.showinfo(title='File saved successfully', message=f"Solutions have been successfully saved in '{filename}'") # Shows successful save info
-            self.status_bar.config(text=f'Save successful.') # Updates status bar
+            self.status_bar.config(text=f'Save successful.', fg='black') # Updates status bar
     
     def __configure(self):
         'Opens settings configuration window'
