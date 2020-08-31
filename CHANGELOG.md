@@ -769,14 +769,42 @@ Added
 ---
 
 + Formatted CHANGELOG.md using markdown language
++ Grid is not going to be validated for only 1 solution
 
 Pending
 ---
 
-- Format CHANGELOG.md properly
-- Must validate grid has only 1 solution
 - Needs to display what the invalid number is
+- Delete config from menubar
 - Saving settings needed (use thread to save?)
+- Dark theme needed (light or dark mode radio button in drop down menu)
+- Try/except needed to see if files to open exist
+- Fill README.md
+
+/UNSTABLE BUILD/
+
+***
+
+31/08/2020 - v0.8.9 ALPHA:
+
+Added
+---
+
++ Added simple status bar indicator of where conflicting number is when validating grid
++ Load and save functionality code refactored
++ Added new subheader tag for solutions text widget
++ Program now displays whether grid is (by definition) a true Sudoku Grid:
+
+> By definition, a Sudoku has only one solution. Anything else is just a grid of numbers.
+
+Pending
+---
+
+- Enter button must begin execution
+- Exit key must interrupt execution
+- Must be able to move across grid canvas when entering clues by using keyboard directional keys
+- Add animation checkbox in options
+- Saving settings needed (use thread to save after changing a setting)
 - Dark theme needed (light or dark mode radio button in drop down menu)
 - Try/except needed to see if files to open exist
 - Fill README.md

@@ -124,6 +124,7 @@ class GraphicalInterface:
         self.scrollbar.config(command=self.solved_grids_display.yview) # Configures the scrolling of the text widget
 
         self.solved_grids_display.tag_configure('header', font=('Helvetica', 10, 'bold'), justify=tkinter.CENTER) # Configures the header font properties of the text widget
+        self.solved_grids_display.tag_configure('subheader', font=('Helvetica', 7, 'bold italic'), justify=tkinter.CENTER) # Configures the subheader font properties of the text widget
         self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 10, 'bold'), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
 
         ### BINDING MOUSE AND KEYBOARD EVENTS
@@ -389,7 +390,7 @@ class GraphicalInterface:
                     self.grid[ypos][xpos] = 0 # Sets the number to 0 temporarily so that self.__possible works
                     if not self.__possible(xpos, ypos, position): # If number cannot be placed in that position
                         # Note that number is not reset in the grid if it is invalid. Grid must be reset
-                        self.status_bar.config(text='Conflict in clue positioning. Invalid grid.', fg='darkred') # Updates status bar with dark red color
+                        self.status_bar.config(text=f'Conflict in clue positioning (Row:{ypos+1},Column:{xpos+1}). Invalid grid.', fg='darkred') # Updates status bar with dark red color
                         return False # Grid is invalid
                     self.grid[ypos][xpos] = position # Resets number in the grid after using __possible method
                     count += 1 # Number is valid
@@ -438,6 +439,11 @@ class GraphicalInterface:
 
         self.solved_grids_display.insert('end', f'{len(self.solutions)} Solution(s) Found\n', 'header') # Adds header with header tag
 
+        if len(self.solutions) == 1: # If only 1 solution has been found
+            self.solved_grids_display.insert('end', f'(True Sudoku Grid)\n', 'subheader') # True Sudoku grid by definition
+        else: # If more than 1 solutions are found
+            self.solved_grids_display.insert('end', f'(False Sudoku Grid)\n', 'subheader') # False Sudoku grid by definition
+
         for grid in self.solutions: # For each solution
             self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
             for row in grid: # For each row in the solution grid
@@ -472,7 +478,12 @@ class GraphicalInterface:
         
         Returns formatted string'''
 
-        formatted = f'-----------------------{len(self.solutions)} Solutions Found-----------------------' # String storing formatted solutions
+        formatted = f'-----------------------{len(self.solutions)} Solutions Found-----------------------\n' # String storing formatted solutions
+
+        if len(self.solutions) == 1: # If only 1 solution has been found
+            formatted += f'(True Sudoku Grid)' # True Sudoku grid by definition
+        else: # If more than 1 solutions are found
+            formatted += f'(False Sudoku Grid)' # True Sudoku grid by definition
         
         for grid in self.solutions: # For each solution
             formatted += '\n' # Adds empty line between each solution
@@ -501,9 +512,9 @@ class GraphicalInterface:
                         self.__update_grid(loaded_grid) # Displays the grid
                     else: # If grid is invalid
                         raise Exception('Incorrect grid format') # Raises exception
-            # If program reaches this point, user has not chosen a file
-            print('Load aborted')
-            return None
+            else: # If program reaches this point, user has not chosen a file and has aborted load
+                print('Load aborted')
+                return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
             self.status_bar.config(text=f'An error occurred. Load aborted.', fg='darkred') # Updates status bar
@@ -521,9 +532,9 @@ class GraphicalInterface:
             if filename: # If a file has been chosen
                 with open(filename, 'w') as f: # Opens the chosen file
                     f.write(self.__solutions_formatter()) # Writes solutions into file
-            # If program reaches this point, user has not chosen a file
-            print('Save aborted')
-            return None
+            else: # If program reaches this point, user has not chosen a file and has aborted save
+                print('Save aborted')
+                return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
             self.status_bar.config(text=f'An error occurred. Save aborted.', fg='darkred') # Updates status bar
