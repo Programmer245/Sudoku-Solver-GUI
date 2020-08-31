@@ -9,7 +9,7 @@ Added
 ---
 
 + Set up development environment
-+ Created .gitignore
++ Created .gitignore file
 + Created Changelog.txt
 + Created README.txt
 + Created sudoku_logic.py and sudoku_main.py
@@ -33,7 +33,7 @@ Added
 + Incorporated logic into main.py to fix cross-module problems
 + Deleted sudoku_logic.py
 + Renamed sudoku_main.py to main.py
-+ Class-oriented approach over module-orented approach preferred 
++ Class-oriented approach over module-oriented approach preferred 
 
 /UNSTABLE BUILD/
 
@@ -123,7 +123,7 @@ Added
 ---
 
 + Renamed SudokuGrid class to GraphicalInterface
-+ Retweaked code
++ Tweaked code
 + Added some documentation
 + Key presses not recorded if square is not highlighted
 
@@ -145,7 +145,7 @@ Pending
 Added
 ---
 
-+ Retweaked some code
++ Tweaked some code
 + Integrated __display_numbers method in __key_pressed method
 + Added __update_grid method to load in an old grid
 
@@ -262,7 +262,7 @@ Added
 
 + Added menubar
 + Added 'Options' and 'Help' sections to menubar
-+ Separated scollbar from right frame
++ Separated scrollbar from right frame
 + Added status bar at bottom of GUI
 
 Pending
@@ -616,7 +616,7 @@ Added
 ---
 
 + Refactored code
-+ Optimisations made
++ Optimization made
 + Deleted self.count variable as it is not needed
 + Added documentation
 + Grid can be modified after being loaded
@@ -724,8 +724,8 @@ Added
 + Removed some debugging statements
 + Handles if no solutions are found
 + Does not crash if load or save functionality is aborted
-+ Autosave aborted if no solutions are found
-+ Updated status label functinality; colors added to display error messages
++ Auto-save aborted if no solutions are found
++ Updated status label functionality; colors added to display error messages
 
 Pending
 ---
@@ -820,7 +820,7 @@ Added
 
 + Added __load_settings method to load saved settings from settings.json when starting application
 + Added __save_settings method to update settings in settings.json
-+ Added delay animation checkbox in options submenu
++ Added delay animation checkbox in options sub-menu
 + Added settings.json file
 + Settings save and load functionality implemented
 + If program crashes when loading or saving, program exits automatically
@@ -833,6 +833,27 @@ Pending
 - Must be able to move across grid canvas when entering clues by using keyboard directional keys
 - Dark theme needed (light or dark mode radio button in drop down menu)
 - Try/except needed to see if files to open exist
+- Fill README.md
+
+/UNSTABLE BUILD/
+
+***
+
+31/08/2020 - v0.9.1 ALPHA:
+
+Added
+---
+
++ `os.path.isfile` method used from os module for existence checking of LICENCE.md and README.md
++ Spell checked program
+
+Pending
+---
+
+- Enter button must begin execution
+- Exit key must interrupt execution
+- Must be able to move across grid canvas when entering clues by using keyboard directional keys
+- Dark theme needed (light or dark mode radio button in drop down menu)
 - Fill README.md
 
 /UNSTABLE BUILD/

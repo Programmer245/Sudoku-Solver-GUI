@@ -46,7 +46,7 @@ class GraphicalInterface:
         self.statusfont = ('Helvetica', 7) # Font type for the status bar
         self.gridfont = ('Helvetica', 10, 'bold') # Font type of sudoku grid
         
-        self.row = None  # Currently selected cell row and colunm
+        self.row = None  # Currently selected cell row and column
         self.col = None
 
         self.__widgets() # Initiates other widgets
@@ -181,7 +181,7 @@ class GraphicalInterface:
                 self.__draw_border() # Handles the box selection
 
             else: # If the user clicks outside the canvas
-                self.row, self.col = None, None # Resets the currently selected cell row and colunm
+                self.row, self.col = None, None # Resets the currently selected cell row and column
                 self.canvas.delete('cursor') # Deletes the previous cursor
 
     def __draw_border(self):
@@ -266,7 +266,7 @@ class GraphicalInterface:
         self.running = False # Program is not running anymore
 
         if self.solutions: # If at least 1 solution has been found
-            self.file_submenu.entryconfig(2, state=tkinter.NORMAL) # Renables the save as functionality 
+            self.file_submenu.entryconfig(2, state=tkinter.NORMAL) # Re-enables the save as functionality 
         else: # If no solutions have been found
             self.__update_solved_grids() # Updates the solved solutions text widget
         self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
@@ -295,14 +295,14 @@ class GraphicalInterface:
 
         self.file_submenu.entryconfig(0, state=tkinter.NORMAL) # Enables the load functionality when program is reset
         self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is reset
-        self.start_btn.config(state=tkinter.NORMAL) # Renables the start button
+        self.start_btn.config(state=tkinter.NORMAL) # Re-enables the start button
         self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset ability
 
         self.solutions = [] # Resets all the found solutions
         self.loaded_grid = None # Forgets the loaded grid
-        self.modify = True # Renables the modify flag to enable grid modification
+        self.modify = True # Re-enables the modify flag to enable grid modification
 
-        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+        self.row, self.col = None, None # Resets the currently selected cell row and column
         self.canvas.delete('cursor') # Deletes the previous cursor
 
         self.solved_grids_display.config(state=tkinter.NORMAL) # Temporarily enables widget
@@ -504,10 +504,10 @@ class GraphicalInterface:
             filename = filedialog.askopenfilename(title='Select Load File', filetypes=(('Text Files', '*.json'),)) # Prompts user to select a load file (.json)
             if filename: # If a file has been chosen
                 with open(filename, 'r') as f: # Opens the chosen file as read
-                    loaded_grid = json.load(f) # Deserializes json file contents
+                    loaded_grid = json.load(f) # Deserialize json file contents
 
                     if self.__validate_loaded_grid(loaded_grid): # If the grid is of valid format
-                        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+                        self.row, self.col = None, None # Resets the currently selected cell row and column
                         self.canvas.delete('cursor') # Deletes the previous cursor
 
                         self.__update_grid(loaded_grid) # Displays the grid
@@ -574,13 +574,21 @@ class GraphicalInterface:
         'Opens README.md'
 
         print('Opened README.md')
-        os.system('README.md') # Opens README.md with an adequate program like notepad
+
+        if os.path.isfile('README.md'): # If file has not been deleted
+            os.system('README.md') # Opens README.md with an adequate program like notepad
+        else: # If file has been deleted or cannot be found
+            messagebox.showerror(title='Fatal Error', message=f"File 'README.MD' not found.") # Shows error
 
     def __licence(self):
         'Opens the LICENCE.md'
 
         print('Opened LICENCE.md')
-        os.system('LICENCE.md') # Opens README.md with an adequate program like notepad
+
+        if os.path.isfile('LICENCE.md'): # If file has not been deleted
+            os.system('LICENCE.md') # Opens README.md with an adequate program like notepad
+        else: # If file has been deleted or cannot be found
+            messagebox.showerror(title='Fatal Error', message=f"File 'LICENCE.MD' not found.") # Shows error
 
 root = tkinter.Tk() # Defines the main window
 root.title('Sudoku Solver') # Sets the title of the window
