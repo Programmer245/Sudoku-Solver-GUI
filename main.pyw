@@ -13,9 +13,6 @@ import time # Time module for delays
 import os # Module for opening system files
 import json # Module for opening json files
 
-# To retrieve the text from an item with object ID I on a canvas C, call C.itemcget(I, 'text').
-# To replace the text in an item with object ID I on a canvas C with the text from a string S, call C.itemconfigure(I, text=S). 
-
 class GraphicalInterface:
     'Creates the entire GUI'
 
@@ -37,7 +34,9 @@ class GraphicalInterface:
 
         self.running = False # Sets the flag indicating whether the solver thread is running; needed for solver thread 
         self.modify = True # Sets the flag indicating whether the grid is allowed to be modified
+
         self.autosave = tkinter.IntVar() # Sets value indicating whether to save grid automatically (1 or 0)
+        self.delay = tkinter.IntVar() # Sets value indicating whether to delay grid animation (1 or 0)
 
         self.margin = 20 # Margin size of the sudoku board
         self.side = 40 # Side length of each square in the grid
@@ -51,6 +50,7 @@ class GraphicalInterface:
         self.col = None
 
         self.__widgets() # Initiates other widgets
+        self.__load_settings() # Loads old settings
 
     ### PACKING WIDGETS
 
@@ -67,13 +67,13 @@ class GraphicalInterface:
         self.file_submenu.add_command(label='Load...', command=self.__load) # Adds load button
         self.file_submenu.add_separator() # Adds a line separator
         self.file_submenu.add_command(label='Save As...', state=tkinter.DISABLED, command=self.__save) # Adds save button which is disabled at the start
-        self.file_submenu.add_checkbutton(label='Auto Save', variable=self.autosave) # Adds a checkbutton for autosave functionality binded to self.autosave
+        self.file_submenu.add_checkbutton(label='Auto Save', variable=self.autosave, command=self.__save_settings) # Adds a checkbutton for autosave functionality binded to self.autosave
         self.file_submenu.add_separator() # Adds a line separator
         self.file_submenu.add_command(label='Exit', command=exit) # Adds exit button
 
         self.option_submenu = tkinter.Menu(self.menubar, tearoff=0) # Creates options submenu 
         self.menubar.add_cascade(label='Options', menu=self.option_submenu) # Places the submenu inside the menubar
-        self.option_submenu.add_command(label='Configure...', command=self.__configure) # Adds configure button
+        self.option_submenu.add_checkbutton(label='Delay Animations', variable=self.delay, command=self.__save_settings) # Adds a checkbutton for delaying animations functionality binded to self.delay
 
         self.help_submenu = tkinter.Menu(self.menubar, tearoff=0) # Creates help submenu 
         self.menubar.add_cascade(label='Help', menu=self.help_submenu) # Places the submenu inside the menubar
@@ -324,7 +324,8 @@ class GraphicalInterface:
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position == 0: # Position must be empty
                     for num in range(1,10): # Tries all numbers from 1 to 9
-                        # time.sleep(0.1) ######################################################################################################################
+                        if self.delay.get(): # If animation is set to be delayed
+                            time.sleep(0.1) 
                         if not self.running: # If it was interrupted
                             return True # Returns True; it was interrupted
                         if self.__possible(xpos, ypos, num): # Check if the number is a possible
@@ -542,10 +543,32 @@ class GraphicalInterface:
             messagebox.showinfo(title='File saved successfully', message=f"Solutions have been successfully saved in '{filename}'") # Shows successful save info
             self.status_bar.config(text=f'Save successful.', fg='black') # Updates status bar
     
-    def __configure(self):
-        'Opens settings configuration window'
+    def __save_settings(self):
+        'Updates settings in settings.json'
 
-        print('Configuration window opened')
+        print('Settings updated')
+
+        try:
+            with open('settings.json', 'w') as f: # Opens the chosen file as read
+                self.settings = {'Autosave':self.autosave.get(), 'AnimationDelay':self.delay.get()} # Stores all the loadable settings as a dictionary
+                json.dump(self.settings, f) # Dumps the settings into json file
+        except Exception as e:
+            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
+            exit() # Exits program if an error occurs when saving
+
+    def __load_settings(self):
+        'Loads the settings from settings.json'
+
+        print('Settings loaded')
+
+        try:
+            with open('settings.json', 'r') as f: # Opens the chosen file as read
+                self.settings = json.load(f) # Loads all the settings 
+                self.autosave.set(self.settings['Autosave'])
+                self.delay.set(self.settings['AnimationDelay'])
+        except Exception as e:
+            messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
+            exit() # Exits program if settings are not found
 
     def __about(self):
         'Opens README.md'

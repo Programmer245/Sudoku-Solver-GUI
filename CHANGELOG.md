@@ -810,3 +810,29 @@ Pending
 - Fill README.md
 
 /UNSTABLE BUILD/
+
+***
+
+31/08/2020 - v0.9 ALPHA:
+
+Added
+---
+
++ Added __load_settings method to load saved settings from settings.json when starting application
++ Added __save_settings method to update settings in settings.json
++ Added delay animation checkbox in options submenu
++ Added settings.json file
++ Settings save and load functionality implemented
++ If program crashes when loading or saving, program exits automatically
+
+Pending
+---
+
+- Enter button must begin execution
+- Exit key must interrupt execution
+- Must be able to move across grid canvas when entering clues by using keyboard directional keys
+- Dark theme needed (light or dark mode radio button in drop down menu)
+- Try/except needed to see if files to open exist
+- Fill README.md
+
+/UNSTABLE BUILD/
