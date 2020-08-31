@@ -197,11 +197,17 @@ class GraphicalInterface:
             self.canvas.create_rectangle(x0, y0, x1, y1, tags='cursor', outline='green', width=3) # Creates the cursor
 
     def __key_pressed(self, event):
-        '''Handles keyboard key presse
+        '''Handles keyboard key press
         
         Takes event as argument'''
 
-        if (self.row, self.col) != (None, None): # Checks that a square is selected
+        if event.keysym == 'Return': # Return button used to start dynamic solving of the grid
+            if self.start_btn.cget('state') == 'normal': # Start button is enabled (program is ok to run)
+                self.__start() # Starts program execution
+        elif event.keysym == 'Escape': # Escape button used to stop the dynamic solving of the grid
+            if self.stop_btn.cget('state') == 'normal': # Stop button is enabled (program is ok to stop)
+                self.__stop() # Stops program execution
+        elif (self.row, self.col) != (None, None): # Checks that a square is selected
             if event.char.isnumeric(): # If entered key is a digit
                 self.__display_number(self.row, self.col, event.char, color='red') # Displays digit in canvas
                 self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
@@ -213,7 +219,7 @@ class GraphicalInterface:
     def __start(self):
         'Begins the dynamic solving of the grid'
 
-        self.row, self.col = None, None # Resets the currently selected cell row and colunm
+        self.row, self.col = None, None # Resets the currently selected cell row and column
         self.canvas.delete('cursor') # Deletes the previous cursor
 
         self.grid = [ # Makes a new empty 8x8 grid which will store the user-entered values

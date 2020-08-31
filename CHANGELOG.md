@@ -857,3 +857,23 @@ Pending
 - Fill README.md
 
 /UNSTABLE BUILD/
+
+***
+
+31/08/2020 - v0.10 ALPHA:
+
+Added
+---
+
++ Enter button can now be used to start program execution
++ Escape button can now be used to stop program execution
++ Light code refactoring
+
+Pending
+---
+
+- Must be able to move across grid canvas when entering clues by using keyboard directional keys
+- Dark theme needed (light or dark mode radio button in drop down menu)
+- Fill README.md
+
+/UNSTABLE BUILD/
