@@ -805,7 +805,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-04/09/2020 - v0.11 ALPHA:
+05/09/2020 - v0.11 ALPHA:
 
 *Added*
 
@@ -817,6 +817,27 @@ when using it in the solver thread, the number has not already been placed, howe
 *Pending*
 
 - Must be able to move across grid canvas when entering clues by using keyboard directional keys
+- Fill README.md
+
+/UNSTABLE BUILD/
+
+***
+
+05/09/2020 - v0.11.1 ALPHA:
+
+*Added*
+
++ Changed cell selection color to #03DAC6
++ Changed status bar color to white for normal status and #CF6689 for errors
++ Changed clue color to #FC5F17 and solving number color to white
++ Changed solutions text widget colors to #FC5F17
++ Delay animations setting now disabled when solver thread is running
+
+*Pending*
+
+- Must be able to move across grid canvas when entering clues by using keyboard directional keys
+- Test all functionality
+- Delete all debugging statements
 - Fill README.md
 
 /UNSTABLE BUILD/

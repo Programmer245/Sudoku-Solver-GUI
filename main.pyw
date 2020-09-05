@@ -123,9 +123,9 @@ class GraphicalInterface:
 
         self.scrollbar.config(command=self.solved_grids_display.yview) # Configures the scrolling of the text widget
 
-        self.solved_grids_display.tag_configure('header', font=('Helvetica', 10, 'bold'), justify=tkinter.CENTER) # Configures the header font properties of the text widget
-        self.solved_grids_display.tag_configure('subheader', font=('Helvetica', 7, 'bold italic'), justify=tkinter.CENTER) # Configures the subheader font properties of the text widget
-        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 10, 'bold'), justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
+        self.solved_grids_display.tag_configure('header', font=('Helvetica', 10, 'bold'), foreground='#FC5F17', justify=tkinter.CENTER) # Configures the header font properties of the text widget
+        self.solved_grids_display.tag_configure('subheader', font=('Helvetica', 7, 'bold italic'), foreground='#FC5F17', justify=tkinter.CENTER) # Configures the subheader font properties of the text widget
+        self.solved_grids_display.tag_configure('solutions', font=('Helvetica', 14, 'bold'), foreground='#FC5F17', justify=tkinter.CENTER) # Configures the solution grids font properties of the text widget
 
         ### BINDING MOUSE AND KEYBOARD EVENTS
 
@@ -194,7 +194,7 @@ class GraphicalInterface:
             y0 = self.margin + self.row*self.side
             x1 = self.margin + (self.col+1)*self.side 
             y1 = self.margin + (self.row+1)*self.side 
-            self.canvas.create_rectangle(x0, y0, x1, y1, tags='cursor', outline='green', width=3) # Creates the cursor
+            self.canvas.create_rectangle(x0, y0, x1, y1, tags='cursor', outline='#03DAC6', width=2) # Creates the cursor
 
     def __key_pressed(self, event):
         '''Handles keyboard key press
@@ -209,7 +209,7 @@ class GraphicalInterface:
                 self.__stop() # Stops program execution
         elif (self.row, self.col) != (None, None): # Checks that a square is selected
             if event.char.isnumeric(): # If entered key is a digit
-                self.__display_number(self.row, self.col, event.char, color='red') # Displays digit in canvas
+                self.__display_number(self.row, self.col, event.char, color='#FC5F17') # Displays digit in canvas
                 self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
             elif event.keysym == 'BackSpace': # If backspace is pressed
                 self.__display_number(self.row, self.col, None) # Resets the square
@@ -260,10 +260,11 @@ class GraphicalInterface:
 
         self.file_submenu.entryconfig(0, state=tkinter.DISABLED) # Disables the load functionality when program is running
         self.file_submenu.entryconfig(2, state=tkinter.DISABLED) # Disables the save as functionality when program is running
+        self.option_submenu.entryconfig(0, state=tkinter.DISABLED) # Disables animations delay setting
         self.start_btn.config(state=tkinter.DISABLED) # Disabled start button until execution is finished
         self.stop_btn.config(state=tkinter.NORMAL) # Enables the stop button until execution is finished
         self.reset_btn.config(state=tkinter.DISABLED) # Disables the reset button until execution is finished
-        self.status_bar.config(text='Executing solve.', fg='black') # Updates status bar
+        self.status_bar.config(text='Executing solve.', fg='white') # Updates status bar
 
         self.loading_bar.start() # Starts the loading bar animation
 
@@ -275,6 +276,7 @@ class GraphicalInterface:
             self.file_submenu.entryconfig(2, state=tkinter.NORMAL) # Re-enables the save as functionality 
         else: # If no solutions have been found
             self.__update_solved_grids() # Updates the solved solutions text widget
+        self.option_submenu.entryconfig(0, state=tkinter.NORMAL) # Enables animations delay setting
         self.stop_btn.config(state=tkinter.DISABLED) # Disables stop button at the end of execution
         self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
 
@@ -284,12 +286,12 @@ class GraphicalInterface:
 
         if not self.interrupted: # Displays all solutions only if it was not interrupted
             self.__display_solutions() # Prints out solutions
-            self.status_bar.config(text='Execution successful. Please reset grid.', fg='black') # Updates status bar
+            self.status_bar.config(text='Execution successful. Please reset grid.', fg='white') # Updates status bar
 
             if self.autosave.get() and self.solutions: # If autosave is on and at least 1 solution has been found
                 self.__save() # Save the results
         else: # If program was interrupted
-            self.status_bar.config(text='Execution interrupted. Please reset grid.', fg='black') # Updates status bar             
+            self.status_bar.config(text='Execution interrupted. Please reset grid.', fg='white') # Updates status bar             
 
     def __stop(self):
         'Interrupts the dynamic solving of the grid'
@@ -317,7 +319,7 @@ class GraphicalInterface:
 
         self.__update_grid(self.empty_grid) # Displays the empty grid
 
-        self.status_bar.config(text='Reset complete.', fg='black') # Updates the status bar
+        self.status_bar.config(text='Reset complete.', fg='white') # Updates the status bar
 
     ### LOGIC HANDLING METHODS
 
@@ -397,13 +399,13 @@ class GraphicalInterface:
                     self.grid[ypos][xpos] = 0 # Sets the number to 0 temporarily so that self.__possible works
                     if not self.__possible(xpos, ypos, position): # If number cannot be placed in that position
                         # Note that number is not reset in the grid if it is invalid. Grid must be reset
-                        self.status_bar.config(text=f'Conflict in clue positioning (Row:{ypos+1},Column:{xpos+1}). Invalid grid.', fg='darkred') # Updates status bar with dark red color
+                        self.status_bar.config(text=f'Conflict in clue positioning (Row:{ypos+1},Column:{xpos+1}). Invalid grid.', fg='#CF6679') # Updates status bar with dark red color
                         return False # Grid is invalid
                     self.grid[ypos][xpos] = position # Resets number in the grid after using __possible method
                     count += 1 # Number is valid
         
         if count < 17: # If there are less than 17 clues
-            self.status_bar.config(text=f'Please enter at least 17 clues. ({17-count} remaining)', fg='darkred') # Updates status bar with dark red color
+            self.status_bar.config(text=f'Please enter at least 17 clues. ({17-count} remaining)', fg='#CF6679') # Updates status bar with dark red color
             return False # Grid is invalid
         
         return True # Grid is valid
@@ -434,7 +436,7 @@ class GraphicalInterface:
         for ypos, row in enumerate(grid): # Goes through each row in the grid
             for xpos, position in enumerate(row): # Goes through each position in the row
                 if position: # If the number does not equal to 0
-                    self.__display_number(ypos, xpos, position, color='red') # Displays the number
+                    self.__display_number(ypos, xpos, position, color='#FC5F17') # Displays the number
                 else: # If the number is 0, square is supposed to be empty
                     self.__display_number(ypos, xpos, None) # Empties square
                     
@@ -460,7 +462,7 @@ class GraphicalInterface:
 
         self.solved_grids_display.config(state=tkinter.DISABLED) # Deactivates the text widget
 
-    def __display_number(self, row, column, n, color='black'): 
+    def __display_number(self, row, column, n, color='white'): 
         '''Displays a given digit on the Sudoku canvas
         
         Takes the row number, column number, value of the number to display, and optional font color as arguments'''
@@ -516,6 +518,8 @@ class GraphicalInterface:
                         self.row, self.col = None, None # Resets the currently selected cell row and column
                         self.canvas.delete('cursor') # Deletes the previous cursor
 
+                        self.reset_btn.config(state=tkinter.NORMAL) # Enabled reset button
+
                         self.__update_grid(loaded_grid) # Displays the grid
                     else: # If grid is invalid
                         raise Exception('Incorrect grid format') # Raises exception
@@ -524,10 +528,10 @@ class GraphicalInterface:
                 return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
-            self.status_bar.config(text=f'An error occurred. Load aborted.', fg='darkred') # Updates status bar
+            self.status_bar.config(text=f'An error occurred. Load aborted.', fg='#CF6689') # Updates status bar
         else:
             messagebox.showinfo(title='File loaded successfully', message=f"Grid has been successfully loaded from '{filename}'") # Shows successful load info
-            self.status_bar.config(text=f'Load successful.', fg='black') # Updates status bar
+            self.status_bar.config(text=f'Load successful.', fg='white') # Updates status bar
 
     def __save(self):
         'Saves all found solutions in chosen text file'
@@ -544,10 +548,10 @@ class GraphicalInterface:
                 return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
-            self.status_bar.config(text=f'An error occurred. Save aborted.', fg='darkred') # Updates status bar
+            self.status_bar.config(text=f'An error occurred. Save aborted.', fg='#CF6689') # Updates status bar
         else:
             messagebox.showinfo(title='File saved successfully', message=f"Solutions have been successfully saved in '{filename}'") # Shows successful save info
-            self.status_bar.config(text=f'Save successful.', fg='black') # Updates status bar
+            self.status_bar.config(text=f'Save successful.', fg='white') # Updates status bar
     
     def __save_settings(self):
         'Updates settings in settings.json'
