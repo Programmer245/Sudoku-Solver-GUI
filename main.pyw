@@ -38,11 +38,11 @@ class GraphicalInterface:
         self.autosave = tkinter.IntVar() # Sets value indicating whether to save grid automatically (1 or 0)
         self.delay = tkinter.IntVar() # Sets value indicating whether to delay grid animation (1 or 0)
 
-        self.margin = 20 # Margin size of the sudoku board
+        self.margin = 10 # Margin size of the sudoku board
         self.side = 40 # Side length of each square in the grid
         self.width = self.height = (self.margin*2) + (self.side*9) # Defines the width and height of the canvas
 
-        self.buttonfont = ('Helvetica', 8) # Font type of buttons
+        self.buttonfont = ('Helvetica', 7) # Font type of buttons
         self.statusfont = ('Helvetica', 7) # Font type for the status bar
         self.gridfont = ('Helvetica', 10, 'bold') # Font type of sudoku grid
         
@@ -86,38 +86,38 @@ class GraphicalInterface:
         self.scrollbar = tkinter.Scrollbar(root) # Scrollbar for the text widget
         self.scrollbar.grid(row=0, column=2, sticky=tkinter.NS) # sticky parameter makes scrollbar stretch from top to bottom; added on right side of GUI
 
-        self.status_bar = tkinter.Label(root, text='Awaiting commands.', font=self.statusfont, bg='lightgrey', anchor=tkinter.E) # Status bar for displaying various status updates
+        self.status_bar = tkinter.Label(root, text='Awaiting commands.', font=self.statusfont, bg='#171717', fg='white', anchor=tkinter.E) # Status bar for displaying various status updates
         self.status_bar.grid(row=1, column=0, columnspan=3, sticky=tkinter.EW) # sticky parameter makes the label stretch from left to right; added at the bottom of the GUI
         
         ### LEFT FRAME (Contains Sudoku Grid)
 
-        self.left_frame = tkinter.Frame(self.parent) # Left frame placed inside the root widget
-        self.canvas = tkinter.Canvas(self.left_frame, width=self.width, height=self.height) # Sudoku grid canvas
+        self.left_frame = tkinter.Frame(self.parent, bg='#212121') # Left frame placed inside the root widget
+        self.canvas = tkinter.Canvas(self.left_frame, bg='#212121', width=self.width, height=self.height) # Sudoku grid canvas
 
         self.left_frame.grid(row=0, column=0) # Positions the frame on the left of the GUI
-        self.canvas.grid()
+        self.canvas.grid(padx=(10,0))
 
         ### RIGHT FRAME (Contains solutions display grid and execution buttons)
 
-        self.right_frame = tkinter.Frame(self.parent) # Right frame placed inside the root widget
-        self.solved_grids_display = tkinter.Text(self.right_frame, height=20, width=30, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
+        self.right_frame = tkinter.Frame(self.parent, bg='#212121') # Right frame placed inside the root widget
+        self.solved_grids_display = tkinter.Text(self.right_frame, bg='#212121', height=21, width=30, state=tkinter.DISABLED, yscrollcommand=self.scrollbar.set) # Text widget displaying all the solved solutions           
 
-        self.right_frame.grid(row=0, column=1, padx=(0,20)) # Positions the frame on the right of the GUI
-        self.solved_grids_display.grid(row=0, column=0)
+        self.right_frame.grid(row=0, column=1) # Positions the frame on the right of the GUI
+        self.solved_grids_display.grid(row=0, column=0, padx=10, pady=(20,0))
         
         ###### RIGHT FRAME BUTTONS LABEL FRAME (Contains execution buttons)
 
-        self.buttons_label_frame = tkinter.LabelFrame(self.right_frame, text='Configure') # Buttons sub frame inside right frame
-        self.start_btn = tkinter.Button(self.buttons_label_frame, text='Start', font=self.buttonfont, command=self.__start) # Start button
-        self.loading_bar = ttk.Progressbar(self.buttons_label_frame, orient=tkinter.HORIZONTAL, mode='indeterminate', maximum='20') # Indeterminate loading bar does not fill gradually but rather sweeps across
-        self.stop_btn = tkinter.Button(self.buttons_label_frame, text='Stop', font=self.buttonfont, state=tkinter.DISABLED, command=self.__stop) # Stop button     
-        self.reset_btn = tkinter.Button(self.buttons_label_frame, text='Reset', font=self.buttonfont, state=tkinter.DISABLED, command=self.__reset) # Reset button   
+        self.buttons_label_frame = tkinter.LabelFrame(self.right_frame, text='Configure', font=self.statusfont, bg='#212121', fg='white') # Buttons sub frame inside right frame
+        self.start_btn = tkinter.Button(self.buttons_label_frame, text='Start', font=self.buttonfont, bg='#212121', fg='white', command=self.__start) # Start button
+        self.stop_btn = tkinter.Button(self.buttons_label_frame, text='Stop', font=self.buttonfont, bg='#212121', fg='white', state=tkinter.DISABLED, command=self.__stop) # Stop button     
+        self.reset_btn = tkinter.Button(self.buttons_label_frame, text='Reset', font=self.buttonfont, bg='#212121', fg='white', state=tkinter.DISABLED, command=self.__reset) # Reset button   
+        self.loading_bar = ttk.Progressbar(self.buttons_label_frame, orient=tkinter.HORIZONTAL, mode='indeterminate', maximum='20', length=150) # Indeterminate loading bar does not fill gradually but rather sweeps across
 
-        self.buttons_label_frame.grid(row=1, column=0, columnspan=2) # Places label frame inside the right frame
+        self.buttons_label_frame.grid(row=1, column=0, columnspan=2, pady=(0,10)) # Places label frame inside the right frame
         self.start_btn.grid(row=1, column=0)
-        self.loading_bar.grid(row=1, column=1, sticky=tkinter.EW) # sticky parameter makes loading bar stretch from left to right
-        self.stop_btn.grid(row=1, column=2) 
-        self.reset_btn.grid(row=1, column=3)
+        self.stop_btn.grid(row=1, column=1) 
+        self.reset_btn.grid(row=1, column=2)
+        self.loading_bar.grid(row=1, column=3, sticky=tkinter.EW) # sticky parameter makes loading bar stretch from left to right
 
         ### WIDGET CONFIGURATION
 
@@ -139,7 +139,7 @@ class GraphicalInterface:
 
         for i in range(10):
             if i % 3 == 0: # Every 3 lines switches to black
-                color = 'black'
+                color = 'white'
             else:
                 color = 'grey'
             
@@ -600,6 +600,7 @@ root = tkinter.Tk() # Defines the main window
 root.title('Sudoku Solver') # Sets the title of the window
 root.iconbitmap('sudoku_icon.ico') # Sets the icon for the window
 root.resizable('False', 'False') # Disables resizing
+root.config(bg='#212121')
 
 GraphicalInterface(root) # GUI instance is created
 
