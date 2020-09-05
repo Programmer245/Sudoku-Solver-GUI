@@ -185,7 +185,7 @@ class GraphicalInterface:
                 self.canvas.delete('cursor') # Deletes the previous cursor
 
     def __draw_border(self):
-        'Draws the border around the clicked square'
+        'Draws the border around the selected square'
 
         self.canvas.delete('cursor') # Deletes the previous cursor
 
@@ -211,6 +211,13 @@ class GraphicalInterface:
             if event.char.isnumeric(): # If entered key is a digit
                 self.__display_number(self.row, self.col, event.char, color='#FC5F17') # Displays digit in canvas
                 self.reset_btn.config(state=tkinter.NORMAL) # Enables the reset button
+
+                if self.col == 8: # If selected cell is in the last column 
+                    if self.row != 8: # If the selected cell is not in the last row
+                        self.row, self.col = self.row+1, 0 # Selects first cell of next row
+                else: # If selected cell is not in the last column
+                    self.col += 1 # Selects next cell across
+                self.__draw_border()
             elif event.keysym == 'BackSpace': # If backspace is pressed
                 self.__display_number(self.row, self.col, None) # Resets the square
 

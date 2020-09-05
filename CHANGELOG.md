@@ -841,3 +841,20 @@ when using it in the solver thread, the number has not already been placed, howe
 - Fill README.md
 
 /UNSTABLE BUILD/
+
+***
+
+05/09/2020 - v0.11.2 ALPHA:
+
+*Added*
+
++ Auto-move functionality added on the grid; when a clue is inserted, the cursor automatically moves across
++ Implementation of keyboard arrow keys for directional movement of cursor has been ABANDONED
+
+*Pending*
+
+- Test all functionality
+- Delete all debugging statements
+- Fill README.md
+
+/UNSTABLE BUILD/
