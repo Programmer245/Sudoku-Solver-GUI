@@ -23,6 +23,8 @@ A sample grid has been provided for easy manipulation.
 *Usage:*
 ---
 
++ Enter button can be used to start execution
++ Escape button can be used to interrupt execution
 + To prepare an external grid for importing, modify the provided sample_grid.json file by changing the preset grid clues (it is also possible to provide a custom .json file as long as the format is the same as that of sample_grid.json).
 + To save a set of solutions to a .txt file, press 'Save as' or enable 'Auto-Save' before completion of execution and either select an empty .txt file or create a new .txt file for storing solutions. **NOTE THAT SAVE FUNCTIONALITY OVERWRITES ANY PREVIOUS DATA; USE WITH CAUTION**. 
 

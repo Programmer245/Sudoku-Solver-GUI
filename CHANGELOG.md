@@ -3,7 +3,7 @@ ChangeLog:
 
 ***
 
-28/05/2020 - v0.1 ALPHA:
+28/05/2020 - v0.1-alpha:
 
 *Added*
 
@@ -23,7 +23,7 @@ ChangeLog:
 
 ***
 
-02/06/2020 - v0.1.1 ALPHA:
+02/06/2020 - v0.1.1-alpha:
 
 *Added*
 
@@ -36,7 +36,7 @@ ChangeLog:
 
 ***
 
-02/06/2020 - v0.1.2 ALPHA:
+02/06/2020 - v0.1.2-alpha:
 
 *Added*
 
@@ -54,7 +54,7 @@ ChangeLog:
 
 ***
 
-03/06/2020 - v0.1.3 ALPHA:
+03/06/2020 - v0.1.3-alpha:
 
 *Added*
 
@@ -70,7 +70,7 @@ ChangeLog:
 
 ***
 
-03/06/2020 - v0.1.4 ALPHA:
+03/06/2020 - v0.1.4-alpha:
 
 *Added*
 
@@ -86,7 +86,7 @@ ChangeLog:
 
 ***
 
-04/06/2020 - v0.2 ALPHA:
+04/06/2020 - v0.2-alpha:
 
 *Added*
 
@@ -106,7 +106,7 @@ ChangeLog:
 
 ***
 
-28/07/2020 - v0.2.1 ALPHA:
+28/07/2020 - v0.2.1-alpha:
 
 *Added*
 
@@ -127,7 +127,7 @@ ChangeLog:
 
 ***
 
-29/07/2020 - v0.2.2 ALPHA:
+29/07/2020 - v0.2.2-alpha:
 
 *Added*
 
@@ -152,7 +152,7 @@ ChangeLog:
 + Threads were chosen to be the most effective method to prevent GUI from freezing
 + A single thread can be used for the __solve_grid method and another checker thread can be used to check if the thread is alive or not
 
-01/08/2020 - v0.3 ALPHA:
+01/08/2020 - v0.3-alpha:
 
 ***
 
@@ -174,7 +174,7 @@ ChangeLog:
 
 ***
 
-03/08/2020 - v0.3.1 ALPHA:
+03/08/2020 - v0.3.1-alpha:
 
 *Added*
 
@@ -191,7 +191,7 @@ ChangeLog:
 
 ***
 
-06/08/2020 - v0.4 ALPHA:
+06/08/2020 - v0.4-alpha:
 
 *Added*
 
@@ -213,7 +213,7 @@ ChangeLog:
 
 ***
 
-11/08/2020 - v0.4.1 ALPHA:
+11/08/2020 - v0.4.1-alpha:
 
 *Added*
 
@@ -232,7 +232,7 @@ ChangeLog:
 
 ***
 
-11/08/2020 - v0.5 ALPHA:
+11/08/2020 - v0.5-alpha:
 
 *Added*
 
@@ -254,7 +254,7 @@ ChangeLog:
 
 ***
 
-12/08/2020 - v0.5.1 ALPHA:
+12/08/2020 - v0.5.1-alpha:
 
 *Added*
 
@@ -272,7 +272,7 @@ ChangeLog:
 
 ***
 
-12/08/2020 - v0.5.2 ALPHA:
+12/08/2020 - v0.5.2-alpha:
 
 *Added*
 
@@ -290,7 +290,7 @@ ChangeLog:
 
 ***
 
-12/08/2020 - v0.5.3 ALPHA:
+12/08/2020 - v0.5.3-alpha:
 
 *Added*
 
@@ -310,7 +310,7 @@ ChangeLog:
 
 ***
 
-12/08/2020 - v0.6 ALPHA:
+12/08/2020 - v0.6-alpha:
 
 *Added*
 
@@ -328,7 +328,7 @@ ChangeLog:
 
 ***
 
-13/08/2020 - v0.6.1 ALPHA:
+13/08/2020 - v0.6.1-alpha:
 
 *Added*
 
@@ -352,7 +352,7 @@ ChangeLog:
 
 ***
 
-17/08/2020 - v0.6.2 ALPHA:
+17/08/2020 - v0.6.2-alpha:
 
 *Added*
 
@@ -375,7 +375,7 @@ ChangeLog:
 
 ***
 
-17/08/2020 - v0.6.3 ALPHA:
+17/08/2020 - v0.6.3-alpha:
 
 *Added*
 
@@ -398,7 +398,7 @@ ChangeLog:
 
 ***
 
-18/08/2020 - v0.6.4 ALPHA:
+18/08/2020 - v0.6.4-alpha:
 
 *Added*
 
@@ -418,7 +418,7 @@ ChangeLog:
 
 ***
 
-18/08/2020 - v0.6.5 ALPHA:
+18/08/2020 - v0.6.5-alpha:
 
 *Added*
 
@@ -442,7 +442,7 @@ ChangeLog:
 
 ***
 
-18/08/2020 - v0.6.6 ALPHA:
+18/08/2020 - v0.6.6-alpha:
 
 *Added*
 
@@ -464,7 +464,7 @@ ChangeLog:
 
 ***
 
-18/08/2020 - v0.6.7 ALPHA:
+18/08/2020 - v0.6.7-alpha:
 
 *Added*
 
@@ -488,7 +488,7 @@ ChangeLog:
 
 ***
 
-19/08/2020 - v0.7 ALPHA:
+19/08/2020 - v0.7-alpha:
 
 *Added*
 
@@ -511,7 +511,7 @@ ChangeLog:
 
 ***
 
-20/08/2020 - v0.8 ALPHA:
+20/08/2020 - v0.8-alpha:
 
 *Added*
 
@@ -533,7 +533,7 @@ ChangeLog:
 
 ***
 
-20/08/2020 - v0.8.1 ALPHA:
+20/08/2020 - v0.8.1-alpha:
 
 *Added*
 
@@ -557,7 +557,7 @@ ChangeLog:
 
 ***
 
-25/08/2020 - v0.8.2 ALPHA:
+25/08/2020 - v0.8.2-alpha:
 
 *Added*
 
@@ -583,7 +583,7 @@ ChangeLog:
 
 ***
 
-26/08/2020 - v0.8.3 ALPHA:
+26/08/2020 - v0.8.3-alpha:
 
 *Added*
 
@@ -606,7 +606,7 @@ ChangeLog:
 
 ***
 
-27/08/2020 - v0.8.4 ALPHA:
+27/08/2020 - v0.8.4-alpha:
 
 *Added*
 
@@ -631,7 +631,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-27/08/2020 - v0.8.5 ALPHA:
+27/08/2020 - v0.8.5-alpha:
 
 *Added*
 
@@ -655,7 +655,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-30/08/2020 - v0.8.6 ALPHA:
+30/08/2020 - v0.8.6-alpha:
 
 *Added*
 
@@ -678,7 +678,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-30/08/2020 - v0.8.7 ALPHA:
+30/08/2020 - v0.8.7-alpha:
 
 *Added*
 
@@ -698,7 +698,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-31/08/2020 - v0.8.8 ALPHA:
+31/08/2020 - v0.8.8-alpha:
 
 *Added*
 
@@ -718,7 +718,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-31/08/2020 - v0.8.9 ALPHA:
+31/08/2020 - v0.8.9-alpha:
 
 *Added*
 
@@ -744,7 +744,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-31/08/2020 - v0.9 ALPHA:
+31/08/2020 - v0.9-alpha:
 
 *Added*
 
@@ -768,7 +768,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-31/08/2020 - v0.9.1 ALPHA:
+31/08/2020 - v0.9.1-alpha:
 
 *Added*
 
@@ -787,7 +787,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-31/08/2020 - v0.10 ALPHA:
+31/08/2020 - v0.10-alpha:
 
 *Added*
 
@@ -805,7 +805,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-05/09/2020 - v0.11 ALPHA:
+05/09/2020 - v0.11-alpha:
 
 *Added*
 
@@ -823,7 +823,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-05/09/2020 - v0.11.1 ALPHA:
+05/09/2020 - v0.11.1-alpha:
 
 *Added*
 
@@ -844,7 +844,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-05/09/2020 - v0.11.2 ALPHA:
+05/09/2020 - v0.11.2-alpha:
 
 *Added*
 
@@ -861,7 +861,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-06/09/2020 - v1.0 BETA:
+06/09/2020 - v1.0-beta:
 
 *Added*
 
@@ -878,7 +878,7 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-06/09/2020 - v1.1 BETA:
+06/09/2020 - v1.1-beta:
 
 *Added*
 
@@ -888,10 +888,22 @@ when using it in the solver thread, the number has not already been placed, howe
 
 ***
 
-06/09/2020 - v1.1.1 BETA:
+06/09/2020 - v1.1.1-beta:
 
 *Added*
 
 + .exe patch
+
+/STABLE BUILD/
+
+***
+
+07/09/2020 - v1.1.2-beta:
+
+*Added*
+
++ Updated CHANGELOG.md
++ Updated README.md
++ Updated all tags
 
 /STABLE BUILD/
