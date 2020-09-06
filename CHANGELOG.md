@@ -885,3 +885,13 @@ when using it in the solver thread, the number has not already been placed, howe
 + README.md filled in
 
 /STABLE BUILD/
+
+***
+
+06/09/2020 - v1.1.1 BETA:
+
+*Added*
+
++ .exe patch
+
+/STABLE BUILD/

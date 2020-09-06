@@ -11,6 +11,8 @@ import threading # Multithreading module
 import time # Time module for delays
 
 import os # Module for opening system files
+from sys import exit # Prevents .exe from crashing when exit function is used
+
 import json # Module for opening json files
 
 class GraphicalInterface:
