@@ -165,12 +165,10 @@ class GraphicalInterface:
         Takes event as argument. Creates indicator only if self.modify is True'''
 
         x, y = event.x, event.y # Finds the x and y coordinate of the click
-        print(f'Clicked at {x},{y}') # DEBUGGING PURPOSES
 
         if self.modify: # Box selection functionality only available if modify variable is True
             if (self.margin < x < self.width - self.margin) and (self.margin < y < self.height - self.margin): # Checks that the click is inside the grid
                 row, col = (y-self.margin)//self.side, (x-self.margin)//self.side # Calculates what row and column the cursor is in
-                print(f'Clicked at row {row}, column {col}') # DEBUGGING PURPOSES
 
                 if (row, col) == (self.row, self.col): # If cell is already selected, deselect it
                     self.row, self.col = None, None
@@ -289,10 +287,7 @@ class GraphicalInterface:
 
         self.loading_bar.stop() # Stops the loading bar animation
 
-        print(f'Exit value: {self.interrupted}') # DEBUGGING PURPOSES
-
         if not self.interrupted: # Displays all solutions only if it was not interrupted
-            self.__display_solutions() # Prints out solutions
             self.status_bar.config(text='Execution successful. Please reset grid.', fg='white') # Updates status bar
 
             if self.autosave.get() and self.solutions: # If autosave is on and at least 1 solution has been found
@@ -463,7 +458,6 @@ class GraphicalInterface:
         for grid in self.solutions: # For each solution
             self.solved_grids_display.insert('end', '\n') # Adds a separator between the solutions
             for row in grid: # For each row in the solution grid
-                # print(row) DEBUGGING PURPOSES
                 self.solved_grids_display.insert('end', f'{row}\n', 'solutions') # Appends the row to the text widget with solutions tag
             self.solved_grids_display.see('end') # Automatically scrolls to the end of the widget
 
@@ -478,16 +472,10 @@ class GraphicalInterface:
         y = round(self.margin + self.side*row + self.side/2) # Coordinates are rounded to nearest integer
         
         tag = (row,column) # Create a tag from 00 to 88 representing the row and column the selected square is in
-        # print(f'Tag: {tag}') DEBUGGING PURPOSES
         
         self.canvas.delete(tag) # Deletes previous 
         self.canvas.create_text(x, y, text=n, tags=(tag,), fill=color, font=self.gridfont) # Places a number on the screen with tagged position
         # tags argument should be a tuple or string
-
-    def __display_solutions(self):
-        'Formats and displays all found solutions in the terminal'
-
-        print(self.__solutions_formatter()) # Prints out the solutions
 
     def __solutions_formatter(self):
         '''Manipulates the solutions in self.solutions into a printable format
@@ -513,8 +501,6 @@ class GraphicalInterface:
     def __load(self):
         'Loads a grid from a chosen json file'
 
-        print('Loading file')
-
         try:
             filename = filedialog.askopenfilename(title='Select Load File', filetypes=(('Text Files', '*.json'),)) # Prompts user to select a load file (.json)
             if filename: # If a file has been chosen
@@ -531,7 +517,6 @@ class GraphicalInterface:
                     else: # If grid is invalid
                         raise Exception('Incorrect grid format') # Raises exception
             else: # If program reaches this point, user has not chosen a file and has aborted load
-                print('Load aborted')
                 return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
@@ -543,15 +528,12 @@ class GraphicalInterface:
     def __save(self):
         'Saves all found solutions in chosen text file'
 
-        print('Saving file')
-
         try:
             filename = filedialog.askopenfilename(title='Select Save File', filetypes=(('Text Files', '*.txt'),)) # Prompts user to select a save file (.txt)
             if filename: # If a file has been chosen
                 with open(filename, 'w') as f: # Opens the chosen file
                     f.write(self.__solutions_formatter()) # Writes solutions into file
             else: # If program reaches this point, user has not chosen a file and has aborted save
-                print('Save aborted')
                 return None
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
@@ -563,11 +545,9 @@ class GraphicalInterface:
     def __save_settings(self):
         'Updates settings in settings.json'
 
-        print('Settings updated')
-
         try:
-            with open('settings.json', 'w') as f: # Opens the chosen file as read
-                self.settings = {'Autosave':self.autosave.get(), 'AnimationDelay':self.delay.get()} # Stores all the loadable settings as a dictionary
+            with open(r'resources\settings.json', 'w') as f: # Opens the chosen file as read
+                self.settings = {'Autosave': self.autosave.get(), 'AnimationDelay': self.delay.get()} # Stores all the loadable settings as a dictionary
                 json.dump(self.settings, f) # Dumps the settings into json file
         except Exception as e:
             messagebox.showerror(title='Fatal Error', message=f'An unexpected error has occurred: {e}') # Shows error
@@ -576,10 +556,8 @@ class GraphicalInterface:
     def __load_settings(self):
         'Loads the settings from settings.json'
 
-        print('Settings loaded')
-
         try:
-            with open('settings.json', 'r') as f: # Opens the chosen file as read
+            with open(r'resources\settings.json', 'r') as f: # Opens the chosen file as read
                 self.settings = json.load(f) # Loads all the settings 
                 self.autosave.set(self.settings['Autosave'])
                 self.delay.set(self.settings['AnimationDelay'])
@@ -590,26 +568,22 @@ class GraphicalInterface:
     def __about(self):
         'Opens README.md'
 
-        print('Opened README.md')
-
-        if os.path.isfile('README.md'): # If file has not been deleted
-            os.system('README.md') # Opens README.md with an adequate program like notepad
+        if os.path.isfile(r'README.md'): # If file has not been deleted
+            os.system(r'README.md') # Opens README.md with an adequate program like notepad
         else: # If file has been deleted or cannot be found
             messagebox.showerror(title='Fatal Error', message=f"File 'README.MD' not found.") # Shows error
 
     def __licence(self):
         'Opens the LICENCE.md'
 
-        print('Opened LICENCE.md')
-
-        if os.path.isfile('LICENCE.md'): # If file has not been deleted
-            os.system('LICENCE.md') # Opens README.md with an adequate program like notepad
+        if os.path.isfile(r'LICENCE.md'): # If file has not been deleted
+            os.system(r'LICENCE.md') # Opens README.md with an adequate program like notepad
         else: # If file has been deleted or cannot be found
             messagebox.showerror(title='Fatal Error', message=f"File 'LICENCE.MD' not found.") # Shows error
 
 root = tkinter.Tk() # Defines the main window
 root.title('Sudoku Solver') # Sets the title of the window
-root.iconbitmap('sudoku_icon.ico') # Sets the icon for the window
+root.iconbitmap(r'resources\sudoku_icon.ico') # Sets the icon for the window
 root.resizable('False', 'False') # Disables resizing
 root.config(bg='#212121')
 

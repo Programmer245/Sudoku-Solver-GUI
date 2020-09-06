@@ -858,3 +858,20 @@ when using it in the solver thread, the number has not already been placed, howe
 - Fill README.md
 
 /UNSTABLE BUILD/
+
+***
+
+06/09/2020 - v1.0 BETA:
+
+*Added*
+
++ Added all files that should not be manipulated by the user to resources directory
++ Refactored code
++ Functionality tested
++ Removed all debugging statements
+
+*Pending*
+
+- Fill README.md
+
+/STABLE BUILD/
